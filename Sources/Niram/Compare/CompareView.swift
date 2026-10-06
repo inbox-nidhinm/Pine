@@ -196,8 +196,12 @@ private struct ContrastSection: View {
         let dark = scheme == .dark
         let ink = dark ? Theme.middleInkDark : Theme.middleInkLight
         ZStack {
+            // Grained, as the app's panels are (the user's request, 6 October
+            // 2026); the colours stay flat, being the colours themselves.
             RoundedRectangle(cornerRadius: Theme.radiusCompareMiddle, style: .continuous)
                 .fill(dark ? Theme.middleDark : Theme.middleLight)
+                .grained()
+                .clipShape(RoundedRectangle(cornerRadius: Theme.radiusCompareMiddle, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: Theme.radiusCompareMiddle, style: .continuous)
                     .strokeBorder(Theme.compareEdge, lineWidth: Theme.hairline))
             PressSurface(corners: Self.corners)

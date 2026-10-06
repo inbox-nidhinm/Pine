@@ -55,7 +55,7 @@ struct SettingsView: View {
                 VersionHistoryCard { showsHistory = false }
             }
         }
-        .windowGround(grain: false)
+        .windowGround()
         // Up under the hidden title bar, so the window is exactly its size;
         // the title block leaves room for the traffic lights.
         .ignoresSafeArea()

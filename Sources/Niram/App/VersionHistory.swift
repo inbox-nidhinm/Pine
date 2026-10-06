@@ -13,7 +13,7 @@ enum VersionHistory {
 
     /// How many pushes to GitHub the app has had, this one included. Raise it by
     /// one with every push: the first was v0.0.01, the 100th is v0.1.00.
-    static let pushes = 21
+    static let pushes = 22
 
     static var release: String { String(format: "v0.%d.%02d", pushes / 100, pushes % 100) }
 
@@ -46,7 +46,7 @@ enum VersionHistory {
             "Hex codes can be typed in Figma's short forms: 0 is 000000, 1a is 1A1A1A, abc is AABBCC.",
             "Settings is one vertical list in a tall window: Global Shortcut (click it to record a new one), Hex Codes (uppercase, include #, and the hex code a colour would be copied as with those choices) and General (Appearance, Show Niram in, launch at login), each row with its icon. Switches are Twine's own.",
             "Version History, at the foot of Settings beside the build number, lists every build of Niram and what it changed.",
-            "Settings has no grain: its page and cards are flat.",
+            "The Compare card's middle carries Twine's grain, in light and dark; the colours stay flat.",
             "Nothing in Niram shows a hint when the pointer rests on it.",
             "Every window is dark, with no title bar: the window's ground is Twine's canvas grey with its grain, and the traffic lights sit in from the corner as they do in Twine.",
         ], fixes: [

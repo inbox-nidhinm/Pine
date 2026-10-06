@@ -5,8 +5,7 @@ extension View {
     /// The card every panel and popup is drawn on, as Twine's. Each needs its
     /// own edge: a border alone reads as a seam and a shadow alone as a
     /// smudge. A card lying flat on a page takes no shadow.
-    /// Settings takes no grain (`grain: false`, the user's choice on 6 October
-    /// 2026).
+    /// `grain: false` leaves it flat.
     func floatingPanel(corner: CGFloat = Theme.radiusPanel, shadow: Bool = true, grain: Bool = true) -> some View {
         // Grained inside the background rather than over the finished card,
         // so the texture stays under the labels and glyphs.
