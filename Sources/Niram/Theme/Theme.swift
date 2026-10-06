@@ -148,18 +148,26 @@ public enum Theme {
 
     // MARK: Compare
 
-    /// The Compare card (the user's Figma, Twine file, node 140:2493): the
-    /// first colour, the contrast, the second colour, stacked on `panelHover`,
-    /// which shows in the corners between them. Every measure is the design's
-    /// times `compareScale` (half, the user's choice on 6 October 2026: the
-    /// design's 320 by 840 was too big), type no smaller than `smallestType`.
+    /// The Compare card (the user's Figma, Twine file, node 143:21): the
+    /// first colour, the contrast, the second colour, stacked with nothing
+    /// behind them. Every measure is the design's times `compareScale` (half,
+    /// the user's choice on 6 October 2026: the design's 320 by 840 was too
+    /// big), type no smaller than `smallestType`.
     public static let compareScale: CGFloat = 0.5
     public static let smallestType: CGFloat = 10
     private static func compare(_ design: CGFloat) -> CGFloat { design * compareScale }
     private static func compareType(_ design: CGFloat) -> CGFloat { max(design * compareScale, smallestType) }
 
     public static let compareCard = CGSize(width: compare(320), height: compare(840))
+    /// The clear margin round the card in its window, so the close button can
+    /// stand out past the corner it sits on; and the window's size with it.
+    public static let compareMargin: CGFloat = 8
+    public static let compareWindow = CGSize(width: compareCard.width + compareMargin * 2,
+                                             height: compareCard.height + compareMargin * 2)
+    /// The card's outer corners, at its top and bottom.
     public static let radiusCompareCard = compare(88)
+    /// A piece's faint edge: black at 7%.
+    public static let compareEdge = Color.black.opacity(0.07)
     /// The colours' corners where they meet the middle, and the middle's own.
     public static let radiusCompareColor = compare(12)
     public static let radiusCompareMiddle = compare(31)
@@ -186,10 +194,8 @@ public enum Theme {
     /// levels, and their box and icon.
     public static let hoverGap = compare(12)
     public static let hoverButton: CGFloat = 20
-    /// macOS's close button: its size, as the traffic lights draw it, and
-    /// how far in from the card's corner it sits, inside the corner's curve.
+    /// macOS's close button, at the size the traffic lights draw it.
     public static let trafficLight: CGFloat = 14
-    public static let compareCloseInset = compare(36)
     /// The copy button beside a hex code, at half strength so it stays quiet.
     public static let quietButton: Double = 0.5
     public static let hoverIcon: CGFloat = 13

@@ -14,15 +14,21 @@ final class CompareModel {
     }
 }
 
-/// The Compare window as the user drew it in Figma (Twine file, node
-/// 140:2493): one tall card, the first colour on top, the contrast in the
-/// middle, the second colour at the bottom, drawn at half the design's size
-/// (`Theme.compareScale`). The design shows the card at rest; the rest is
-/// ours, as the user asked on 6 October 2026: a click anywhere on a colour
-/// picks a new one, a click on its code types one, the copy button sits after
-/// the code at half strength, the swap button shows under the levels while
-/// the pointer is over the middle, and the close button is macOS's own red
-/// traffic light in the top-left corner, inside the curve.
+/// The Compare window as the user drew it in Figma (Twine file, node 143:21,
+/// which replaced 140:2493 on 6 October 2026): three pieces stacked with
+/// nothing behind them, the first colour on top (round at the top), the
+/// contrast in the middle (round all round), the second colour at the bottom
+/// (round at the bottom), each with a faint edge; where their corners curve
+/// away, what is behind the window shows. Drawn at half the design's size
+/// (`Theme.compareScale`).
+///
+/// The design shows the card at rest; the rest is ours, as the user asked: a
+/// click anywhere on a colour picks a new one, a click on its code types one,
+/// the copy button sits after the code at half strength, and the swap button
+/// shows under the levels while the pointer is over the middle. The design's
+/// red dot on the top-left corner is drawn as macOS's own red traffic light
+/// (the user's earlier request), at its own size, centred on the corner; the
+/// window has a clear margin round the card so it can stand out past it.
 struct CompareView: View {
     let model: CompareModel
     let close: () -> Void
@@ -30,19 +36,20 @@ struct CompareView: View {
     var body: some View {
         VStack(spacing: 0) {
             ColorSection(color: Binding(get: { model.first }, set: { model.first = $0 }),
-                         corners: .init(bottomLeading: Theme.radiusCompareColor, bottomTrailing: Theme.radiusCompareColor))
+                         corners: .init(topLeading: Theme.radiusCompareCard, bottomLeading: Theme.radiusCompareColor,
+                                        bottomTrailing: Theme.radiusCompareColor, topTrailing: Theme.radiusCompareCard))
             ContrastSection(model: model)
             ColorSection(color: Binding(get: { model.second }, set: { model.second = $0 }),
-                         corners: .init(topLeading: Theme.radiusCompareColor, topTrailing: Theme.radiusCompareColor))
+                         corners: .init(topLeading: Theme.radiusCompareColor, bottomLeading: Theme.radiusCompareCard,
+                                        bottomTrailing: Theme.radiusCompareCard, topTrailing: Theme.radiusCompareColor))
         }
-        .background(Theme.panelHover)
+        .frame(width: Theme.compareCard.width, height: Theme.compareCard.height)
         .overlay(alignment: .topLeading) {
             TrafficLightClose(action: close)
                 .frame(width: Theme.trafficLight, height: Theme.trafficLight)
-                .padding(Theme.compareCloseInset)
+                .offset(x: -Theme.trafficLight / 2, y: -Theme.trafficLight / 2)
         }
-        .clipShape(RoundedRectangle(cornerRadius: Theme.radiusCompareCard, style: .continuous))
-        .frame(width: Theme.compareCard.width, height: Theme.compareCard.height)
+        .padding(Theme.compareMargin)
         .ignoresSafeArea()
     }
 }
@@ -68,7 +75,9 @@ private struct ColorSection: View {
             Button(action: pick) {
                 UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
                     .fill(Color(nsColor: color))
-                    .contentShape(Rectangle())
+                    .overlay(UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
+                        .strokeBorder(Theme.compareEdge, lineWidth: Theme.hairline))
+                    .contentShape(UnevenRoundedRectangle(cornerRadii: corners, style: .continuous))
             }
             .buttonStyle(.plain)
             .help("Click to pick a colour from anywhere on screen")
@@ -151,7 +160,10 @@ private struct ContrastSection: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(RoundedRectangle(cornerRadius: Theme.radiusCompareMiddle, style: .continuous).fill(Theme.canvas))
+        .background(RoundedRectangle(cornerRadius: Theme.radiusCompareMiddle, style: .continuous)
+            .fill(Theme.canvas)
+            .overlay(RoundedRectangle(cornerRadius: Theme.radiusCompareMiddle, style: .continuous)
+                .strokeBorder(Theme.compareEdge, lineWidth: Theme.hairline)))
         .contentShape(Rectangle())
         .onHover { over in withAnimation(Theme.hoverFade) { hovering = over } }
     }
