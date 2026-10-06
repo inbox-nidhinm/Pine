@@ -46,3 +46,12 @@ import AppKit
         #expect(ContrastLevel.aaLarge.passes(3))
     }
 }
+
+@Suite struct HexFormatTests {
+    @Test func eachFormatAsTheSettingsSay() {
+        let color = NSColor(hexString: "#E2387F")!
+        #expect(AppSettings.formatHex(color, uppercase: true, hash: true) == "#E2387F")
+        #expect(AppSettings.formatHex(color, uppercase: false, hash: true) == "#e2387f")
+        #expect(AppSettings.formatHex(color, uppercase: true, hash: false) == "E2387F")
+    }
+}

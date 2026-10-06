@@ -15,6 +15,7 @@ public enum Icon: String, CaseIterable, Sendable {
     case eyedropper
     case minus
     case plus
+    case power
     case settings
     case swap
 
@@ -46,6 +47,10 @@ public enum Icon: String, CaseIterable, Sendable {
         ]
         case .plus: return [   // plus.svg
             "M11.9922 4.00012V20.0001M19.9922 12.0001H3.99222"
+        ]
+        case .power: return [   // power.svg
+            "M12 3V11",
+            "M7.5 6C5.4 7.4 4 9.9 4 12.7C4 17.1 7.6 20.7 12 20.7C16.4 20.7 20 17.1 20 12.7C20 9.9 18.6 7.4 16.5 6"
         ]
         case .settings: return [   // settings.svg
             "M7 21V18",

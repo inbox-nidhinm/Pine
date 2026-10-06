@@ -39,9 +39,12 @@ enum AppSettings {
     }
 
     static func formatHex(_ color: NSColor) -> String {
-        var hex = color.hexRRGGBB
-        if !uppercaseHex { hex = hex.lowercased() }
-        return includeHash ? "#\(hex)" : hex
+        formatHex(color, uppercase: uppercaseHex, hash: includeHash)
+    }
+
+    static func formatHex(_ color: NSColor, uppercase: Bool, hash: Bool) -> String {
+        let hex = uppercase ? color.hexRRGGBB : color.hexRRGGBB.lowercased()
+        return hash ? "#\(hex)" : hex
     }
 }
 

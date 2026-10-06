@@ -170,8 +170,55 @@ public enum Theme {
     public static let previewBodyText: CGFloat = 12
     /// How long the copy button shows its tick.
     public static let copiedShown: Double = 1
-    /// The Settings window's width, until it is laid out again (step 4).
-    public static let settingsWindowWidth: CGFloat = 400
+    // MARK: Settings
+
+    /// The Settings window: the page's margin, its title's size and the block
+    /// it sits at the foot of (under the traffic lights), and the width of
+    /// each of its two columns of cards.
+    public static let settingsMargin: CGFloat = 24
+    public static let settingsTitle: CGFloat = 21
+    public static let settingsTitleBlock: CGFloat = 76
+    public static let settingsColumn: CGFloat = 300
+    /// Between cards, across and down.
+    public static let settingsCardGap: CGFloat = 24
+    /// A card's name and the card under it.
+    public static let settingsCardTitleGap: CGFloat = 8
+    /// As Twine's Settings page: a row's height, the icon tile at its left
+    /// and the icon on it, the width of the control at its right, the dashes
+    /// between rows, and the Version History button.
+    public static let settingsRow: CGFloat = 48
+    public static let settingsTile: CGFloat = 32
+    public static let settingsTileIcon: CGFloat = 16
+    public static let settingsControl: CGFloat = 120
+    public static let settingsDash: [CGFloat] = [3, 3]
+    public static let settingsButton: CGFloat = 140
+    /// A switch's track width and the gap round its thumb, and the bar on
+    /// the thumb that says it drags.
+    public static let switchWidth: CGFloat = 46
+    public static let switchInset: CGFloat = 2
+    public static let gripWidth: CGFloat = 2
+    public static let gripHeight: CGFloat = 10
+    public static let radiusGrip: CGFloat = 1
+    public static let switchSlide = Animation.easeOut(duration: 0.16)
+
+    // MARK: Version History
+
+    /// The card over the Settings window, its inset and its header row.
+    public static let historyWidth: CGFloat = 560
+    public static let historyPad: CGFloat = 18
+    public static let historyHeader: CGFloat = 38
+    /// Behind the card, over the page.
+    public static let scrim = Color.black.opacity(0.55)
+    /// The steps of running text in the card, from the smallest: between
+    /// lines, between two points, between sections, a build's title and what
+    /// it says, one build and the next. As Twine's.
+    public static let readingLineSpacing: CGFloat = 3
+    public static let readingItemGap: CGFloat = 10
+    public static let readingSectionGap: CGFloat = 22
+    public static let readingTitleGap: CGFloat = 14
+    public static let readingBlockGap: CGFloat = 44
+    public static let bullet: CGFloat = 3
+    public static let buildTitle: CGFloat = 20
     /// How far the traffic lights sit in from the window's corner.
     public static let trafficLightInset: CGFloat = floatInset + panelPad
 

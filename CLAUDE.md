@@ -2,7 +2,7 @@
 
 Niram is a menu bar colour picker (no Dock icon, `LSUIElement`): a global shortcut (⇧⌘C by default, a Carbon hotkey, so no Accessibility permission) picks a colour from the screen with `NSColorSampler` and copies its hex code; the menu bar keeps the last five; a Compare window shows two colours with their WCAG contrast; a Settings window holds the shortcut, hex format and launch at login. Launching it again while it runs opens Compare. Bundle id `com.nidhin.niram`; the GitHub repo is `inbox-nidhinm/Niram` (private).
 
-It is being redesigned the way Flip and Twine were made: `docs/redesign-decisions.md` holds the user's answers. The steps, each ending with screenshots for the user to check before the next: 1 foundations (done), 2 the menu bar dropdown as a custom floating panel (done), 3 the Compare window (done), 4 Settings as cards, as Twine's Settings page, 5 an app icon (needs the user's artwork).
+It is being redesigned the way Flip and Twine were made: `docs/redesign-decisions.md` holds the user's answers. The steps, each ending with screenshots for the user to check before the next: 1 foundations (done), 2 the menu bar dropdown as a custom floating panel (done), 3 the Compare window (done), 4 Settings as cards, as Twine's Settings page (done), 5 an app icon (needs the user's artwork).
 
 ## Rules
 
@@ -30,7 +30,7 @@ SwiftPM, no Xcode project. `./make-app.sh` builds release (or `debug`), assemble
 | `Sources/Niram/Components` | `Floating.swift`: `floatingPanel()`, `windowGround()`, `PopupCard`, `TrafficLights`, `ChromelessWindow` and `makeChromelessWindow(_:)`, the dark window every Niram window uses |
 | `Sources/Niram/MenuBar` | `StatusPanel` (the borderless, non-activating panel under the status item: placed under the icon's button, kept on screen, the window's own shadow following the card, closed by Escape, a click in another app (a global monitor) or losing the keyboard; ⌘, and ⌘Q through a local key monitor, so posted keys cannot test them), `MenuBarPanel` (Pick Colour as `PrimaryButton`, recent colours, command rows as Twine's menu rows), `RecentColors` (the last five, newest first, in defaults as `recentColors`) |
 | `Sources/Niram/Compare` | `CompareView`: Twine's editor layout, the preview (the background colour, the text colour's samples) under the whole window and `CompareColorsPanel` floating on the left, its top row holding the traffic lights and the swap button. `CompareModel` is `text` and `background`. The view runs under the hidden title bar (`.ignoresSafeArea()`), so the window is made at `Theme.compareWindow` through `makeChromelessWindow(_:size:)`: sized to fit, it counted the title bar on top. Levels and ratio maths are `ContrastLevel` and `shownRatio` in `ColorUtils` (cut, never rounded up), typed hex `NSColor(typedHex:)` |
-| `Sources/Niram/Settings` | The Settings window's view |
+| `Sources/Niram/Settings` | `SettingsView`: Twine's Settings page in a fixed window, sized to fit (it does not run under the title bar; `settingsTitleBlock` leaves room for the traffic lights). Cards of rows (`card`, `row`, `dashes`, as Twine's) in two columns: Picking and General on the left, Hex Codes on the right; `ShortcutField` records the shortcut through a local key monitor (posted keys skip it, so recording is untested). `VersionHistoryCard` shows over the page from the foot's button. `PillToggle` and `PanelButton` are in `Components/Buttons.swift` |
 
 ## Icons
 
