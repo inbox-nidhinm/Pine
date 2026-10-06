@@ -26,7 +26,10 @@ struct CompareView: View {
             Divider()
             ContrastBar(colorA: model.colorA, colorB: model.colorB)
         }
-        .frame(width: 520, height: 340)
+        .frame(width: Theme.compareWindow.width, height: Theme.compareWindow.height)
+        // Room for the traffic lights, until the window is laid out again.
+        .padding(.top, Theme.cardHeader)
+        .windowGround()
     }
 }
 
@@ -95,7 +98,7 @@ private struct ColorPanel: View {
             .padding(10)
         }
         .onAppear { hexText = AppSettings.formatHex(color) }
-        .onChange(of: color) { newValue in
+        .onChange(of: color) { _, newValue in
             hexText = AppSettings.formatHex(newValue)
         }
     }

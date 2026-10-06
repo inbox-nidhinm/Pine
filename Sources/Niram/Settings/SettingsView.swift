@@ -28,7 +28,7 @@ struct SettingsView: View {
 
             Section("General") {
                 Toggle("Launch at login", isOn: $launchAtLogin)
-                    .onChange(of: launchAtLogin) { enabled in
+                    .onChange(of: launchAtLogin) { _, enabled in
                         do {
                             if enabled {
                                 try SMAppService.mainApp.register()
@@ -43,8 +43,12 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 400)
+        .scrollContentBackground(.hidden)
+        .frame(width: Theme.settingsWindowWidth)
         .fixedSize(horizontal: false, vertical: true)
+        // Room for the traffic lights, until the window is laid out again.
+        .padding(.top, Theme.cardHeader)
+        .windowGround()
     }
 }
 

@@ -12,8 +12,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var recentHexes: [String] = []
 
     private let compareModel = CompareModel()
-    private var compareWindow: NSWindow?
-    private var settingsWindow: NSWindow?
+    private var compareWindow: ChromelessWindow?
+    private var settingsWindow: ChromelessWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppSettings.registerDefaults()
@@ -38,7 +38,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     // Launching the app a second time sends a reopen event to the running
-    // instance — that is when the compare UI comes up.
+    // instance: that is when the compare window comes up.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         showCompareWindow()
         return false
@@ -98,30 +98,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func showCompareWindow() {
         if compareWindow == nil {
-            let hosting = NSHostingController(rootView: CompareView(model: compareModel))
-            let window = NSWindow(contentViewController: hosting)
+            let window = makeChromelessWindow(CompareView(model: compareModel))
             window.title = "Niram"
-            window.styleMask = [.titled, .closable, .miniaturizable]
-            window.isReleasedWhenClosed = false
-            window.center()
             compareWindow = window
         }
         NSApp.activate(ignoringOtherApps: true)
         compareWindow?.makeKeyAndOrderFront(nil)
+        compareWindow?.clearInitialFocus()
     }
 
     private func showSettingsWindow() {
         if settingsWindow == nil {
-            let hosting = NSHostingController(rootView: SettingsView())
-            let window = NSWindow(contentViewController: hosting)
+            let window = makeChromelessWindow(SettingsView())
             window.title = "Niram Settings"
-            window.styleMask = [.titled, .closable]
-            window.isReleasedWhenClosed = false
-            window.center()
             settingsWindow = window
         }
         NSApp.activate(ignoringOtherApps: true)
         settingsWindow?.makeKeyAndOrderFront(nil)
+        settingsWindow?.clearInitialFocus()
     }
 
     // MARK: - Actions
