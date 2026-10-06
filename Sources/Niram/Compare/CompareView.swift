@@ -53,14 +53,16 @@ struct CompareView: View {
 
 /// One colour filling its third of the card, its hex code in the middle. A
 /// click anywhere on the colour picks a new one from the screen and a drag
-/// moves the card; a click on the code types one. The copy button sits after the code at half strength,
-/// with an empty box of its width before the code so the code stays centred.
+/// moves the card; a click on the code types one. The copy button sits after
+/// the code at half strength, only while the pointer is over the colour, with
+/// an empty box of its width before the code so the code stays centred.
 private struct ColorSection: View {
     @Binding var color: NSColor
     let corners: RectangleCornerRadii
 
     @State private var typed = ""
     @State private var copied = false
+    @State private var hovering = false
     @FocusState private var typing: Bool
 
     private var ink: Color { Niram.ink(on: color) }
@@ -73,7 +75,8 @@ private struct ColorSection: View {
                     .strokeBorder(Theme.compareEdge, lineWidth: Theme.hairline))
             // A click on the colour picks a new one; a drag moves the card.
             PressSurface(corners: corners, help: "Click to pick a colour from anywhere on screen. Drag to move.",
-                         onClick: pick)
+                         onClick: pick,
+                         onHover: { over in withAnimation(Theme.copyFade) { hovering = over } })
 
             HStack(spacing: Theme.rowGap) {
                 Color.clear.frame(width: Theme.hoverButton, height: Theme.hoverButton)
@@ -86,8 +89,11 @@ private struct ColorSection: View {
                     .focused($typing)
                     .onSubmit(commit)
                     .help("Type a hex code. Short forms work: 0, 1a and abc are 000000, 1A1A1A and AABBCC.")
+                // Only while the pointer is over this colour (the user's
+                // request), and while its tick shows after a copy.
                 OnColorButton(icon: copied ? .check : .copy, ink: ink, help: "Copy this colour's hex code", action: copy)
-                    .opacity(copied ? 1 : Theme.quietButton)
+                    .opacity(copied ? 1 : hovering ? Theme.quietButton : 0)
+                    .allowsHitTesting(hovering || copied)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

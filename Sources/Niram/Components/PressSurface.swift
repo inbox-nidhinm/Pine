@@ -15,18 +15,48 @@ struct PressSurface: NSViewRepresentable {
     var corners: RectangleCornerRadii
     var help: String?
     var onClick: (() -> Void)?
+    /// Whether the pointer is over the shape, wherever it is: over what lies
+    /// on top of the surface (a code, a button) too.
+    var onHover: ((Bool) -> Void)?
 
     func makeNSView(context: Context) -> Surface { Surface() }
 
     func updateNSView(_ view: Surface, context: Context) {
         view.corners = corners
         view.onClick = onClick
+        view.onHover = onHover
         view.toolTip = help
     }
 
     final class Surface: NSView {
         var corners = RectangleCornerRadii()
         var onClick: (() -> Void)?
+        var onHover: ((Bool) -> Void)?
+        private var inside = false
+
+        override init(frame: NSRect) {
+            super.init(frame: frame)
+            addTrackingArea(NSTrackingArea(rect: .zero,
+                                           options: [.mouseEnteredAndExited, .mouseMoved, .activeAlways, .inVisibleRect],
+                                           owner: self))
+        }
+
+        required init?(coder: NSCoder) { fatalError("not used") }
+
+        override func mouseEntered(with event: NSEvent) { follow(event) }
+        override func mouseMoved(with event: NSEvent) { follow(event) }
+        override func mouseExited(with event: NSEvent) { setInside(false) }
+
+        /// Inside the rounded shape, not merely its box.
+        private func follow(_ event: NSEvent) {
+            setInside(shape.contains(convert(event.locationInWindow, from: nil)))
+        }
+
+        private func setInside(_ now: Bool) {
+            guard now != inside else { return }
+            inside = now
+            onHover?(now)
+        }
 
         override var isFlipped: Bool { true }
         override var mouseDownCanMoveWindow: Bool { false }

@@ -196,8 +196,10 @@ public enum Theme {
     public static let dragStart: CGFloat = 3
     /// macOS's close button, at the size the traffic lights draw it.
     public static let trafficLight: CGFloat = 14
-    /// The copy button beside a hex code, at half strength so it stays quiet.
+    /// The copy button beside a hex code, at half strength so it stays quiet,
+    /// and its fade as the pointer comes onto its colour and leaves.
     public static let quietButton: Double = 0.5
+    public static let copyFade = Animation.easeOut(duration: 0.15)
     public static let hoverIcon: CGFloat = 13
     /// The small icon in a square glyph button.
     public static let buttonIcon: CGFloat = 15

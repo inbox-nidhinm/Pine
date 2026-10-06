@@ -13,7 +13,7 @@ enum VersionHistory {
 
     /// How many pushes to GitHub the app has had, this one included. Raise it by
     /// one with every push: the first was v0.0.01, the 100th is v0.1.00.
-    static let pushes = 12
+    static let pushes = 13
 
     static var release: String { String(format: "v0.%d.%02d", pushes / 100, pushes % 100) }
 
@@ -36,7 +36,7 @@ enum VersionHistory {
         .init(date: "6 October 2026", title: "The redesign", features: [
             "The menu bar icon opens a panel in Niram's own look in place of the system menu: Pick Colour as its main button, with its shortcut; the recent colours as swatches with their hex codes, each copied again with a click (a tick shows as it copies); then Compare Colours, Settings (⌘,) and Quit Niram (⌘Q). Escape or a click anywhere else closes it.",
             "Recent colours are kept when Niram quits.",
-            "Compare is a small stack of three pieces, as drawn in Figma: the first colour on top with its hex code, the contrast in the middle, the second colour at the bottom, each with its own rounded corners and a faint edge, nothing behind them. Click anywhere on a colour to pick a new one from the screen, or click its hex code to type one; the copy button sits beside each code, quiet until you need it. Press anywhere on the stack and drag to move it. It stays above every other app's windows until you close it with the red button on its top-left corner (macOS's own) or ⌘W.",
+            "Compare is a small stack of three pieces, as drawn in Figma: the first colour on top with its hex code, the contrast in the middle, the second colour at the bottom, each with its own rounded corners and a faint edge, nothing behind them. Click anywhere on a colour to pick a new one from the screen, or click its hex code to type one; the copy button shows beside a code, quietly, while the pointer is over its colour. Press anywhere on the stack and drag to move it. It stays above every other app's windows until you close it with the red button on its top-left corner (macOS's own) or ⌘W.",
             "The contrast ratio is shown large, in PP Kyoto, with a pill for each of AA, AA Large and AAA, outlined when reached and dimmed when not. Hover over one for the ratio it needs.",
             "Hex codes can be typed in Figma's short forms: 0 is 000000, 1a is 1A1A1A, abc is AABBCC.",
             "Settings is laid out as Twine's Settings page: its title under the traffic lights, then cards of rows, each with its icon: Picking (the shortcut, clicked to record a new one), General (launch at login) and Hex Codes (uppercase, include #, and the hex code a colour would be copied as with those choices). Switches are Twine's own. What each setting does is in its tooltip.",
