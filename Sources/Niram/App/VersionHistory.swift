@@ -13,7 +13,7 @@ enum VersionHistory {
 
     /// How many pushes to GitHub the app has had, this one included. Raise it by
     /// one with every push: the first was v0.0.01, the 100th is v0.1.00.
-    static let pushes = 23
+    static let pushes = 24
 
     static var release: String { String(format: "v0.%d.%02d", pushes / 100, pushes % 100) }
 
@@ -40,7 +40,7 @@ enum VersionHistory {
             "Recent colours are kept when Niram quits.",
             "Compare is a small stack of three pieces, as drawn in Figma: the first colour on top with its hex code, the contrast in the middle, the second colour at the bottom, each with its own rounded corners and a faint edge, nothing behind them. Click anywhere on a colour to pick a new one from the screen, or click its hex code to type one; the copy button shows beside a code, quietly, while the pointer is over its colour. Press anywhere on the stack and drag to move it. It stays above every other app's windows until you close it with the red button on its top-left corner (macOS's own, drawn a little larger) or ⌘W.",
             "The Compare card follows your Mac's light or dark mode, as drawn in Figma: in light mode its middle is a light grey with dark figures. Settings has an Appearance choice under General: System (the default), Light or Dark.",
-            "Settings has a light mode too, following the same Appearance choice as the Compare card: a light grey page with its grain, dark type, and grey switches. The menu bar panel stays dark.",
+            "Settings has a light mode too, following the same Appearance choice as the Compare card: a light grey page with its grain, dark type, grey switches, and tiles, fields and lines that stand out from the page as much as they do in dark mode. The menu bar panel stays dark.",
             "Your recent colours stand in a column of round swatches beside the Compare card, newest at the top. Click one to put it in the top colour, Option-click for the bottom one. Niram now keeps your last nine colours (the menu bar panel shows the latest five), and colours picked on the card join them.",
             "Opening Settings while the Compare card is open puts the card away; closing Settings brings it back. If the card was not open, it stays closed.",
             "The contrast ratio is shown large, in PP Kyoto, with a pill for each of AA, AA Large and AAA, outlined when reached and dimmed when not.",

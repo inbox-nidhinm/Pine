@@ -25,15 +25,16 @@ public enum Theme {
     public static let canvas = adaptive(dark: 0x1E1E1E, light: 0xF2F2F2)
     /// Every floating card. #2C2C2C dark, #FFFFFF light.
     public static let panel = adaptive(dark: 0x2C2C2C, light: 0xFFFFFF)
-    /// Fields, trays, tiles, and hover over `panel`. #383838 dark, #E4E4E4 light.
-    public static let panelRaised = adaptive(dark: 0x383838, light: 0xE4E4E4)
-    /// Hover over something already on `panelRaised`. #484848 dark, #D6D6D6 light.
-    public static let panelHover = adaptive(dark: 0x484848, light: 0xD6D6D6)
-    /// Rules, and the edge of every card. #424242 dark, #D9D9D9 light.
-    public static let border = adaptive(dark: 0x424242, light: 0xD9D9D9)
+    /// Fields, trays, tiles, and hover over `panel`. #383838 dark, #D0D0D0 light:
+    /// in both, about 1.4 to 1 against the page, so they stand out as much.
+    public static let panelRaised = adaptive(dark: 0x383838, light: 0xD0D0D0)
+    /// Hover over something already on `panelRaised`. #484848 dark, #C2C2C2 light.
+    public static let panelHover = adaptive(dark: 0x484848, light: 0xC2C2C2)
+    /// Rules, and the edge of every card. #424242 dark, #C8C8C8 light.
+    public static let border = adaptive(dark: 0x424242, light: 0xC8C8C8)
     /// A hairline over colour the theme does not control: a swatch, a well.
     /// Translucent so it reads on anything.
-    public static let edge = adaptive(dark: Color.white.opacity(0.12), light: Color.black.opacity(0.10))
+    public static let edge = adaptive(dark: Color.white.opacity(0.12), light: Color.black.opacity(0.14))
     /// `edge` under the pointer. On a control whose fill *is* a colour, the
     /// hairline is the only part that can answer a hover without lying.
     public static let edgeHover = adaptive(dark: Color.white.opacity(0.32), light: Color.black.opacity(0.28))
@@ -68,17 +69,19 @@ public enum Theme {
     /// the accent. #5C5C5C dark, #525252 light, so the white pill shows.
     public static let switchOn = adaptive(dark: 0x5C5C5C, light: 0x525252)
     public static let switchOnHover = adaptive(dark: 0x686868, light: 0x3E3E3E)
-    /// A switch that is off. #1E1E1E dark, #D6D6D6 light.
-    public static let switchOff = adaptive(dark: 0x1E1E1E, light: 0xD6D6D6)
+    /// A switch that is off. #1E1E1E dark, #C4C4C4 light.
+    public static let switchOff = adaptive(dark: 0x1E1E1E, light: 0xC4C4C4)
 
     // MARK: Text (text/*)
 
     /// White dark, #1A1A1A light.
     public static let textPrimary = adaptive(dark: Color.white, light: Color(hex: 0x1A1A1A))
-    /// #B3B3B3 dark, #525252 light.
-    public static let textSecondary = adaptive(dark: Color(white: 0.70), light: Color(hex: 0x525252))
-    /// Placeholders, units, readouts, disabled. #808080 dark, #8C8C8C light.
-    public static let textTertiary = adaptive(dark: Color(white: 0.50), light: Color(hex: 0x8C8C8C))
+    /// #B3B3B3 dark, #3D3D3D light (9.7 to 1 on the light page; the user
+    /// found #525252 too faint, 6 October 2026).
+    public static let textSecondary = adaptive(dark: Color(white: 0.70), light: Color(hex: 0x3D3D3D))
+    /// Placeholders, units, readouts, disabled. #808080 dark, #666666 light
+    /// (5.1 to 1 on the light page, past WCAG AA).
+    public static let textTertiary = adaptive(dark: Color(white: 0.50), light: Color(hex: 0x666666))
     /// Words and glyphs on a coloured fill, such as the main button.
     public static let textOnColor = Color.white
 
