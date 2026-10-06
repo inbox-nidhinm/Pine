@@ -163,8 +163,16 @@ public enum Theme {
     /// stand out past the corner it sits on, whole, with a little room; and
     /// the window's size with it.
     public static let compareMargin = (compareClose / 2).rounded(.up) + 2
-    public static let compareWindow = CGSize(width: compareCard.width + compareMargin * 2,
+    public static let compareWindow = CGSize(width: compareCard.width + swatchGap + swatchColumn + compareMargin * 2,
                                              height: compareCard.height + compareMargin * 2)
+    /// The column of recent colours beside the card (node 144:126): its gap
+    /// from the card, a swatch (round), the gap between swatches, the
+    /// column's own inset, and its width.
+    public static let swatchGap = compare(19)
+    public static let recentSwatch = compare(48)
+    public static let recentSwatchGap = compare(12)
+    public static let swatchColumnPad = compare(8)
+    public static let swatchColumn = recentSwatch + swatchColumnPad * 2
     /// The card's outer corners, at its top and bottom.
     public static let radiusCompareCard = compare(88)
     /// A piece's faint edge: black at 7%.
@@ -179,6 +187,17 @@ public enum Theme {
     /// A colour's hex code, and how wide its field is.
     public static let compareHex = compareType(20)
     public static let compareHexField = compare(84)
+    /// The middle piece in each appearance (node 144:126): its ground, its
+    /// figures and pills, and its ": 1". A pill's outline is its type at 40%;
+    /// a level not reached is drawn at `missedLevel` of that.
+    public static let middleDark = canvas
+    public static let middleLight = Color(white: 0xDB / 255.0)
+    public static let middleInkDark = Color.white
+    public static let middleInkLight = textOnLight
+    public static let middleUnitDark = Color(white: 0x80 / 255.0)
+    public static let middleUnitLight = Color(white: 0x52 / 255.0)
+    public static let pillOutline: Double = 0.4
+    public static let missedLevel: Double = 0.35
     /// The contrast ratio's figures in the display face, and the ": 1".
     public static let ratioSize = compareType(64)
     public static let ratioUnit = compareType(32)
@@ -223,7 +242,7 @@ public enum Theme {
     public static let settingsMargin: CGFloat = 24
     public static let settingsTitle: CGFloat = 21
     public static let settingsTitleBlock: CGFloat = 76
-    public static let settingsColumn: CGFloat = 300
+    public static let settingsColumn: CGFloat = 320
     /// Between cards, across and down.
     public static let settingsCardGap: CGFloat = 24
     /// A card's name and the card under it.
@@ -235,6 +254,12 @@ public enum Theme {
     public static let settingsTile: CGFloat = 32
     public static let settingsTileIcon: CGFloat = 16
     public static let settingsControl: CGFloat = 120
+    /// The room either side of a segment row option's word, the tray's inset
+    /// round its options, and
+    /// the line of a drawn glyph (the Appearance tile's circle).
+    public static let segmentPad: CGFloat = 8
+    public static let trayPad: CGFloat = 2
+    public static let glyphLine: CGFloat = 1.5
     public static let settingsDash: [CGFloat] = [3, 3]
     public static let settingsButton: CGFloat = 140
     /// A switch's track width and the gap round its thumb, and the bar on

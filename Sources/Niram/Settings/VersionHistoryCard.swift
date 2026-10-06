@@ -41,7 +41,7 @@ struct VersionHistoryCard: View {
                 }
             }
             .frame(width: Theme.historyWidth)
-            .floatingPanel()
+            .floatingPanel(grain: false)
             .padding(Theme.settingsMargin)
         }
     }

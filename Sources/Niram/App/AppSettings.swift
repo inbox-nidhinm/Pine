@@ -8,8 +8,37 @@ enum AppSettings {
     static let hotKeyModifiersKey = "hotKeyModifiers"
     static let uppercaseHexKey = "uppercaseHex"
     static let includeHashKey = "includeHash"
+    static let appearanceKey = "appearance"
 
     static let shortcutChanged = Notification.Name("NiramShortcutChanged")
+    static let appearanceChanged = Notification.Name("NiramAppearanceChanged")
+
+    /// Light or dark for the Compare card: the Mac's own by default (the
+    /// user's choice, 6 October 2026), or always one.
+    enum Appearance: String, CaseIterable {
+        case system, light, dark
+
+        var name: String {
+            switch self {
+            case .system: "System"
+            case .light: "Light"
+            case .dark: "Dark"
+            }
+        }
+
+        /// The window's appearance: nil follows the Mac.
+        var window: NSAppearance? {
+            switch self {
+            case .system: nil
+            case .light: NSAppearance(named: .aqua)
+            case .dark: NSAppearance(named: .darkAqua)
+            }
+        }
+    }
+
+    static var appearance: Appearance {
+        Appearance(rawValue: UserDefaults.standard.string(forKey: appearanceKey) ?? "") ?? .system
+    }
 
     static func registerDefaults() {
         UserDefaults.standard.register(defaults: [

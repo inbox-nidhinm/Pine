@@ -5,12 +5,14 @@ extension View {
     /// The card every panel and popup is drawn on, as Twine's. Each needs its
     /// own edge: a border alone reads as a seam and a shadow alone as a
     /// smudge. A card lying flat on a page takes no shadow.
-    func floatingPanel(corner: CGFloat = Theme.radiusPanel, shadow: Bool = true) -> some View {
+    /// Settings takes no grain (`grain: false`, the user's choice on 6 October
+    /// 2026).
+    func floatingPanel(corner: CGFloat = Theme.radiusPanel, shadow: Bool = true, grain: Bool = true) -> some View {
         // Grained inside the background rather than over the finished card,
         // so the texture stays under the labels and glyphs.
         background(RoundedRectangle(cornerRadius: corner)
             .fill(Theme.panel)
-            .grained()
+            .grained(grain ? Theme.grain : 0)
             .clipShape(RoundedRectangle(cornerRadius: corner)))
             .overlay(RoundedRectangle(cornerRadius: corner)
                 .strokeBorder(Theme.border, lineWidth: Theme.hairline))
@@ -18,9 +20,10 @@ extension View {
             .shadow(color: shadow ? Theme.shadow : .clear, radius: shadow ? Theme.shadowRadius : 0, y: shadow ? Theme.shadowY : 0)
     }
 
-    /// A window's whole ground: the canvas colour with the grain over it.
-    func windowGround() -> some View {
-        background(Theme.canvas.grained().ignoresSafeArea())
+    /// A window's whole ground: the canvas colour, with the grain over it
+    /// unless `grain` is false.
+    func windowGround(grain: Bool = true) -> some View {
+        background(Theme.canvas.grained(grain ? Theme.grain : 0).ignoresSafeArea())
     }
 }
 

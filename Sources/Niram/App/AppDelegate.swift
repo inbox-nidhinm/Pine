@@ -12,6 +12,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let compareModel = CompareModel()
     private var compareWindow: CardWindow?
     private var settingsWindow: ChromelessWindow?
+    /// The card was open when Settings opened, so it comes back when Settings
+    /// closes (the user's request, 6 October 2026).
+    private var compareAfterSettings = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppSettings.registerDefaults()
@@ -29,11 +32,40 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         registerHotKey()
 
+        NotificationCenter.default.post(name: AppSettings.appearanceChanged, object: nil)
+                }
+                after(2) { log("after Light"); exit(0) }
+            } else if let w = compareWindow {
+                after(1) {
+                    log("before")
+                    // The second swatch: column x, first swatch centre + one step.
+                    let x = Theme.compareMargin + Theme.compareCard.width + Theme.swatchGap + Theme.swatchColumn / 2
+                    let top = (Theme.compareWindow.height - (9 * Theme.recentSwatch + 8 * Theme.recentSwatchGap + 2 * Theme.swatchColumnPad)) / 2
+                    let y = top + Theme.swatchColumnPad + Theme.recentSwatch * 1.5 + Theme.recentSwatchGap
+                    let p = NSPoint(x: x, y: w.frame.height - y)
+                    for type in [NSEvent.EventType.leftMouseDown, .leftMouseUp] {
+                        w.sendEvent(NSEvent.mouseEvent(with: type, location: p, modifierFlags: [], timestamp: 0, windowNumber: w.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: 1)!)
+                    }
+                    NSApp.postEvent(NSEvent.otherEvent(with: .applicationDefined, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, subtype: 0, data1: 0, data2: 0)!, atStart: false)
+                }
+                after(2) { log("after clicking the second swatch"); exit(0) }
+            }
+        default: break
+        }
+
         NotificationCenter.default.addObserver(
             forName: AppSettings.shortcutChanged, object: nil, queue: .main
         ) { [weak self] _ in
             MainActor.assumeIsolated {
                 self?.registerHotKey()
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: AppSettings.appearanceChanged, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.compareWindow?.appearance = AppSettings.appearance.window
             }
         }
     }
@@ -99,9 +131,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Windows
 
     private func showCompareWindow() {
+        // Opened by hand: Settings closing has nothing left to bring back.
+        compareAfterSettings = false
         if compareWindow == nil {
-            let window = makeCardWindow(CompareView(model: compareModel) { [weak self] in self?.compareWindow?.close() }, size: Theme.compareWindow)
+            let window = makeCardWindow(CompareView(model: compareModel, recents: recents) { [weak self] in
+                self?.compareWindow?.close()
+            }, size: Theme.compareWindow)
             window.title = "Niram"
+            window.appearance = AppSettings.appearance.window
             compareWindow = window
         }
         NSApp.activate(ignoringOtherApps: true)
@@ -110,15 +147,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         DispatchQueue.main.async { [weak self] in self?.compareWindow?.makeFirstResponder(nil) }
     }
 
+    /// Settings shows alone: an open card is put away, and comes back when
+    /// Settings closes. A card that was not open stays closed.
     private func showSettingsWindow() {
+        if compareWindow?.isVisible == true {
+            compareWindow?.orderOut(nil)
+            compareAfterSettings = true
+        }
         if settingsWindow == nil {
             let window = makeChromelessWindow(SettingsView())
             window.title = "Niram Settings"
+            NotificationCenter.default.addObserver(
+                forName: NSWindow.willCloseNotification, object: window, queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated { self?.settingsClosed() }
+            }
             settingsWindow = window
         }
         NSApp.activate(ignoringOtherApps: true)
         settingsWindow?.makeKeyAndOrderFront(nil)
         settingsWindow?.clearInitialFocus()
+    }
+
+    private func settingsClosed() {
+        guard compareAfterSettings else { return }
+        // A turn later, once Settings has gone.
+        DispatchQueue.main.async { [weak self] in self?.showCompareWindow() }
     }
 
     // MARK: - Picking

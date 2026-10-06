@@ -29,17 +29,33 @@ final class CompareModel {
 /// window has a clear margin round the card so it can stand out past it.
 struct CompareView: View {
     let model: CompareModel
+    let recents: RecentColors
     let close: () -> Void
 
     var body: some View {
+        HStack(alignment: .center, spacing: Theme.swatchGap) {
+            card
+            RecentColumn(recents: recents) { hex, intoSecond in
+                guard let color = NSColor(hexString: hex) else { return }
+                if intoSecond { model.second = color } else { model.first = color }
+            }
+            .frame(width: Theme.swatchColumn)
+        }
+        .padding(Theme.compareMargin)
+        .ignoresSafeArea()
+    }
+
+    private var card: some View {
         VStack(spacing: 0) {
             ColorSection(color: Binding(get: { model.first }, set: { model.first = $0 }),
                          corners: .init(topLeading: Theme.radiusCompareCard, bottomLeading: Theme.radiusCompareColor,
-                                        bottomTrailing: Theme.radiusCompareColor, topTrailing: Theme.radiusCompareCard))
+                                        bottomTrailing: Theme.radiusCompareColor, topTrailing: Theme.radiusCompareCard),
+                         picked: remember)
             ContrastSection(model: model)
             ColorSection(color: Binding(get: { model.second }, set: { model.second = $0 }),
                          corners: .init(topLeading: Theme.radiusCompareColor, bottomLeading: Theme.radiusCompareCard,
-                                        bottomTrailing: Theme.radiusCompareCard, topTrailing: Theme.radiusCompareColor))
+                                        bottomTrailing: Theme.radiusCompareCard, topTrailing: Theme.radiusCompareColor),
+                         picked: remember)
         }
         .frame(width: Theme.compareCard.width, height: Theme.compareCard.height)
         .overlay(alignment: .topLeading) {
@@ -47,8 +63,39 @@ struct CompareView: View {
                 .frame(width: Theme.compareClose, height: Theme.compareClose)
                 .offset(x: -Theme.compareClose / 2, y: -Theme.compareClose / 2)
         }
-        .padding(Theme.compareMargin)
-        .ignoresSafeArea()
+    }
+
+    /// A colour picked on the card joins the recent ones, as one picked with
+    /// the shortcut does.
+    private func remember(_ color: NSColor) {
+        recents.add(AppSettings.formatHex(color))
+    }
+}
+
+/// The recent colours, newest at the top, as round swatches beside the card
+/// (node 144:126). A click puts one in the top colour, an Option-click in the
+/// bottom one. Nothing shows until a colour has been picked.
+private struct RecentColumn: View {
+    let recents: RecentColors
+    let use: (String, Bool) -> Void
+
+    var body: some View {
+        VStack(spacing: Theme.recentSwatchGap) {
+            ForEach(recents.hexes, id: \.self) { hex in
+                Button {
+                    use(hex, NSEvent.modifierFlags.contains(.option))
+                } label: {
+                    Circle()
+                        .fill(Color(nsColor: NSColor(hexString: hex) ?? .clear))
+                        .overlay(Circle().strokeBorder(Theme.compareEdge, lineWidth: Theme.hairline))
+                        .frame(width: Theme.recentSwatch, height: Theme.recentSwatch)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .help("\(hex): click to put it in the top colour, Option-click for the bottom one")
+            }
+        }
+        .padding(Theme.swatchColumnPad)
     }
 }
 
@@ -60,6 +107,8 @@ struct CompareView: View {
 private struct ColorSection: View {
     @Binding var color: NSColor
     let corners: RectangleCornerRadii
+    /// A colour picked from the screen here, to be remembered.
+    let picked: (NSColor) -> Void
 
     @State private var typed = ""
     @State private var copied = false
@@ -115,8 +164,10 @@ private struct ColorSection: View {
     }
 
     private func pick() {
-        ColorPicking.shared.pick { picked in
-            if let picked { color = picked }
+        ColorPicking.shared.pick { new in
+            guard let new else { return }
+            color = new
+            picked(new)
         }
     }
 
@@ -135,15 +186,20 @@ private struct ColorSection: View {
 private struct ContrastSection: View {
     let model: CompareModel
 
+    /// Dark or light, as the card's window is (`AppSettings.appearance`).
+    @Environment(\.colorScheme) private var scheme
+
     private static let corners = RectangleCornerRadii(topLeading: Theme.radiusCompareMiddle,
                                                       bottomLeading: Theme.radiusCompareMiddle,
                                                       bottomTrailing: Theme.radiusCompareMiddle,
                                                       topTrailing: Theme.radiusCompareMiddle)
 
     var body: some View {
+        let dark = scheme == .dark
+        let ink = dark ? Theme.middleInkDark : Theme.middleInkLight
         ZStack {
             RoundedRectangle(cornerRadius: Theme.radiusCompareMiddle, style: .continuous)
-                .fill(Theme.canvas)
+                .fill(dark ? Theme.middleDark : Theme.middleLight)
                 .overlay(RoundedRectangle(cornerRadius: Theme.radiusCompareMiddle, style: .continuous)
                     .strokeBorder(Theme.compareEdge, lineWidth: Theme.hairline))
             PressSurface(corners: Self.corners)
@@ -151,14 +207,14 @@ private struct ContrastSection: View {
                 HStack(alignment: .lastTextBaseline, spacing: Theme.ratioGap) {
                     Text(shownRatio(model.ratio))
                         .font(ThemeFont.display(Theme.ratioSize, .thin))
-                        .foregroundStyle(Theme.textPrimary)
+                        .foregroundStyle(ink)
                     Text(": 1")
                         .font(ThemeFont.display(Theme.ratioUnit, .thin))
-                        .foregroundStyle(Theme.textTertiary)
+                        .foregroundStyle(dark ? Theme.middleUnitDark : Theme.middleUnitLight)
                 }
                 HStack(spacing: Theme.pillGap) {
                     ForEach(ContrastLevel.allCases, id: \.self) { level in
-                        LevelPill(level: level, passes: level.passes(model.ratio))
+                        LevelPill(level: level, passes: level.passes(model.ratio), ink: ink)
                     }
                 }
             }
@@ -175,19 +231,21 @@ func ink(on color: NSColor) -> Color {
     color.relativeLuminance > Theme.lightColor ? Theme.textOnLight : Theme.textPrimary
 }
 
+/// A WCAG level: its name in the middle's type, outlined at 40% of it, as
+/// the design draws it; a level not reached is drawn faint.
 private struct LevelPill: View {
     let level: ContrastLevel
     let passes: Bool
+    let ink: Color
 
     var body: some View {
-        let ink = passes ? Theme.textPrimary : Theme.textTertiary
         Text(level.name)
             .font(.system(size: Theme.pillText, weight: .medium))
             .foregroundStyle(ink)
             .padding(.horizontal, Theme.pillPadH)
             .padding(.vertical, Theme.pillPadV)
-            .overlay(Capsule().strokeBorder(ink, lineWidth: Theme.hairline))
-            .help(level.help)
+            .overlay(Capsule().strokeBorder(ink.opacity(Theme.pillOutline), lineWidth: Theme.hairline))
+            .opacity(passes ? 1 : Theme.missedLevel)
     }
 }
 

@@ -117,3 +117,47 @@ struct PillToggle: View {
         .onHover { hovering = $0 }
     }
 }
+
+/// A choice of a few, side by side in a tray, as Twine's segment rows: the
+/// chosen one on `Theme.chosen` (grey, not the accent), the rest lighting
+/// under the pointer.
+struct SegmentRow: View {
+    /// Each option's stored value and the name it shows.
+    let options: [(value: String, name: String)]
+    let chosen: String
+    let choose: (String) -> Void
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(options, id: \.value) { option in
+                Segment(name: option.name, isChosen: option.value == chosen) { choose(option.value) }
+            }
+        }
+        .padding(Theme.trayPad)
+        .background(RoundedRectangle(cornerRadius: Theme.radiusControl).fill(Theme.panelRaised))
+    }
+
+    private struct Segment: View {
+        let name: String
+        let isChosen: Bool
+        let action: () -> Void
+
+        @State private var hovering = false
+
+        var body: some View {
+            Button(action: action) {
+                Text(name)
+                    .font(ThemeFont.label)
+                    .foregroundStyle(isChosen || hovering ? Theme.textPrimary : Theme.textSecondary)
+                    .fixedSize()
+                    .padding(.horizontal, Theme.segmentPad)
+                    .frame(height: Theme.control - Theme.trayPad * 2)
+                    .background(RoundedRectangle(cornerRadius: Theme.radiusControl - Theme.trayPad)
+                        .fill(isChosen ? Theme.chosen : hovering ? Theme.panelHover : .clear))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .onHover { hovering = $0 }
+        }
+    }
+}

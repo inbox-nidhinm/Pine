@@ -9,6 +9,7 @@ import ServiceManagement
 struct SettingsView: View {
     @AppStorage(AppSettings.uppercaseHexKey) private var uppercaseHex = true
     @AppStorage(AppSettings.includeHashKey) private var includeHash = true
+    @AppStorage(AppSettings.appearanceKey) private var appearance = AppSettings.Appearance.system.rawValue
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var showsHistory = false
 
@@ -53,7 +54,7 @@ struct SettingsView: View {
                 VersionHistoryCard { showsHistory = false }
             }
         }
-        .windowGround()
+        .windowGround(grain: false)
     }
 
     // MARK: Cards
@@ -92,6 +93,15 @@ struct SettingsView: View {
 
     private var general: some View {
         card("General") {
+            row(tile: AnyView(AppearanceGlyph()), "Appearance",
+                help: "Light or dark for the Compare card. System follows your Mac.") {
+                SegmentRow(options: AppSettings.Appearance.allCases.map { ($0.rawValue, $0.name) },
+                           chosen: appearance) { picked in
+                    appearance = picked
+                    NotificationCenter.default.post(name: AppSettings.appearanceChanged, object: nil)
+                }
+            }
+            dashes
             row(.power, "Launch at login", help: "Start Niram when you log in, so the shortcut is always ready.") {
                 PillToggle(isOn: launchAtLogin) { setLaunchAtLogin(!launchAtLogin) }
             }
@@ -131,7 +141,7 @@ struct SettingsView: View {
                 .padding(.vertical, Theme.panelPad - Self.rowInset)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 // Flat on the page, with no shadow, as Twine's.
-                .floatingPanel(shadow: false)
+                .floatingPanel(shadow: false, grain: false)
         }
     }
 
@@ -169,6 +179,17 @@ struct SettingsView: View {
 
     /// The room a row leaves above and below its tile.
     private static let rowInset = (Theme.settingsRow - Theme.settingsTile) / 2
+}
+
+/// Half a circle filled: the usual mark for light and dark.
+private struct AppearanceGlyph: View {
+    var body: some View {
+        ZStack {
+            Circle().strokeBorder(lineWidth: Theme.glyphLine)
+            Circle().trim(from: 0.25, to: 0.75).fill()
+        }
+        .frame(width: Theme.settingsTileIcon, height: Theme.settingsTileIcon)
+    }
 }
 
 private struct DashedLine: Shape {

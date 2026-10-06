@@ -6,7 +6,10 @@ import Observation
 /// the moment.
 @MainActor @Observable
 final class RecentColors {
-    nonisolated static let limit = 5
+    /// Nine, for the Compare card's column of swatches; the menu bar panel
+    /// shows the newest `inPanel`.
+    nonisolated static let limit = 9
+    nonisolated static let inPanel = 5
     private static let key = "recentColors"
 
     private(set) var hexes: [String]

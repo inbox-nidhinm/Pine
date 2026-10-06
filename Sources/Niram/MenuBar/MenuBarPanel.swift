@@ -29,7 +29,7 @@ struct MenuBarPanel: View {
                     .foregroundStyle(Theme.textTertiary)
                     .padding(.horizontal, Theme.menuItemPad)
                     .frame(height: Theme.control, alignment: .bottomLeading)
-                ForEach(recents.hexes, id: \.self) { hex in
+                ForEach(recents.hexes.prefix(RecentColors.inPanel), id: \.self) { hex in
                     RecentColorRow(hex: hex) { actions.copy(hex) }
                 }
             }
