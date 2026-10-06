@@ -14,23 +14,41 @@ import AppKit
 public enum Theme {
 
     // MARK: Surfaces (surface/*, border/*)
+    //
+    // These follow the window they are drawn in: dark as Twine's, or light
+    // (the user's request, 6 October 2026, for Settings), worked out from the
+    // light Compare card in the user's Figma (node 144:126): its light grey,
+    // #1A1A1A type and #525252 secondary type. The menu bar panel is always
+    // dark; Settings and the Compare card follow `AppSettings.appearance`.
 
-    /// #1E1E1E. The window's ground, and the track inside sliders and toggles.
-    public static let canvas = Color(red: 0x1E / 255, green: 0x1E / 255, blue: 0x1E / 255)
-    /// #2C2C2C. Every floating card.
-    public static let panel = Color(red: 0x2C / 255, green: 0x2C / 255, blue: 0x2C / 255)
-    /// #383838. Fields, trays, and hover over `panel`.
-    public static let panelRaised = Color(red: 0x38 / 255, green: 0x38 / 255, blue: 0x38 / 255)
-    /// #484848. Hover over something already on `panelRaised`.
-    public static let panelHover = Color(red: 0x48 / 255, green: 0x48 / 255, blue: 0x48 / 255)
-    /// #424242. Rules, and the edge of every card.
-    public static let border = Color(red: 0x42 / 255, green: 0x42 / 255, blue: 0x42 / 255)
+    /// The window's ground. #1E1E1E dark, #F2F2F2 light.
+    public static let canvas = adaptive(dark: 0x1E1E1E, light: 0xF2F2F2)
+    /// Every floating card. #2C2C2C dark, #FFFFFF light.
+    public static let panel = adaptive(dark: 0x2C2C2C, light: 0xFFFFFF)
+    /// Fields, trays, tiles, and hover over `panel`. #383838 dark, #E4E4E4 light.
+    public static let panelRaised = adaptive(dark: 0x383838, light: 0xE4E4E4)
+    /// Hover over something already on `panelRaised`. #484848 dark, #D6D6D6 light.
+    public static let panelHover = adaptive(dark: 0x484848, light: 0xD6D6D6)
+    /// Rules, and the edge of every card. #424242 dark, #D9D9D9 light.
+    public static let border = adaptive(dark: 0x424242, light: 0xD9D9D9)
     /// A hairline over colour the theme does not control: a swatch, a well.
     /// Translucent so it reads on anything.
-    public static let edge = Color.white.opacity(0.12)
+    public static let edge = adaptive(dark: Color.white.opacity(0.12), light: Color.black.opacity(0.10))
     /// `edge` under the pointer. On a control whose fill *is* a colour, the
     /// hairline is the only part that can answer a hover without lying.
-    public static let edgeHover = Color.white.opacity(0.32)
+    public static let edgeHover = adaptive(dark: Color.white.opacity(0.32), light: Color.black.opacity(0.28))
+
+    /// A colour for each mode, chosen by the appearance of whatever draws it.
+    static func adaptive(dark: UInt32, light: UInt32) -> Color {
+        adaptive(dark: Color(hex: dark), light: Color(hex: light))
+    }
+
+    static func adaptive(dark: Color, light: Color) -> Color {
+        let darkColor = NSColor(dark), lightColor = NSColor(light)
+        return Color(nsColor: NSColor(name: nil) { appearance in
+            appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? darkColor : lightColor
+        })
+    }
 
     // MARK: Accent (accent/*, row/*)
 
@@ -43,18 +61,24 @@ public enum Theme {
     /// #633045. A selected row: the accent a little under a third of the way
     /// over `panel`, pulled greyer, as Twine's blue row was mixed by eye.
     public static let rowSelected = Color(red: 0x63 / 255, green: 0x30 / 255, blue: 0x45 / 255)
-    /// #5C5C5C. What is chosen among settings: a segment, a switch that is on.
-    /// Grey rather than the accent, so settings stay one quiet surface.
-    public static let chosen = Color(red: 0x5C / 255, green: 0x5C / 255, blue: 0x5C / 255)
-    /// `chosen` under the pointer: a step lighter, as `accentHover` is.
-    public static let chosenHover = Color(red: 0x68 / 255, green: 0x68 / 255, blue: 0x68 / 255)
+    /// The chosen segment of a row of choices: #5C5C5C dark, white light (on
+    /// its tray), never the accent, so settings stay one quiet surface.
+    public static let chosen = adaptive(dark: 0x5C5C5C, light: 0xFFFFFF)
+    /// A switch that is on, and under the pointer a step further: grey, never
+    /// the accent. #5C5C5C dark, #525252 light, so the white pill shows.
+    public static let switchOn = adaptive(dark: 0x5C5C5C, light: 0x525252)
+    public static let switchOnHover = adaptive(dark: 0x686868, light: 0x3E3E3E)
+    /// A switch that is off. #1E1E1E dark, #D6D6D6 light.
+    public static let switchOff = adaptive(dark: 0x1E1E1E, light: 0xD6D6D6)
 
     // MARK: Text (text/*)
 
-    public static let textPrimary = Color.white
-    public static let textSecondary = Color(white: 0.70)
-    /// Placeholders, units, readouts, disabled.
-    public static let textTertiary = Color(white: 0.50)
+    /// White dark, #1A1A1A light.
+    public static let textPrimary = adaptive(dark: Color.white, light: Color(hex: 0x1A1A1A))
+    /// #B3B3B3 dark, #525252 light.
+    public static let textSecondary = adaptive(dark: Color(white: 0.70), light: Color(hex: 0x525252))
+    /// Placeholders, units, readouts, disabled. #808080 dark, #8C8C8C light.
+    public static let textTertiary = adaptive(dark: Color(white: 0.50), light: Color(hex: 0x8C8C8C))
     /// Words and glyphs on a coloured fill, such as the main button.
     public static let textOnColor = Color.white
 
@@ -169,8 +193,11 @@ public enum Theme {
     /// The colours' corners where they meet the middle, and the middle's own.
     public static let radiusCompareColor = compare(12)
     public static let radiusCompareMiddle = compare(31)
-    /// #1A1A1A. A hex code on a light colour; on a dark one it is white.
-    public static let textOnLight = Color(red: 0x1A / 255, green: 0x1A / 255, blue: 0x1A / 255)
+    /// #1A1A1A. A hex code on a light colour; on a dark one it is
+    /// `textOnDark`. Fixed, whatever the window's mode: they are read against
+    /// the colour itself.
+    public static let textOnLight = Color(hex: 0x1A1A1A)
+    public static let textOnDark = Color.white
     /// Above this WCAG luminance a colour takes `textOnLight`.
     public static let lightColor: CGFloat = 0.4
     /// A colour's hex code, and how wide its field is.
@@ -179,7 +206,7 @@ public enum Theme {
     /// The middle piece in each appearance (node 144:126): its ground, its
     /// figures and pills, and its ": 1". A pill's outline is its type at 40%;
     /// a level not reached is drawn at `missedLevel` of that.
-    public static let middleDark = canvas
+    public static let middleDark = Color(hex: 0x1E1E1E)
     public static let middleLight = Color(white: 0xDB / 255.0)
     public static let middleInkDark = Color.white
     public static let middleInkLight = textOnLight
@@ -326,4 +353,12 @@ public enum ThemeFont {
             return CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
         }.allSatisfy { $0 }
     }()
+}
+
+extension Color {
+    /// A colour from its hex code, as 0xRRGGBB.
+    init(hex: UInt32) {
+        self.init(red: Double((hex >> 16) & 0xFF) / 255, green: Double((hex >> 8) & 0xFF) / 255,
+                  blue: Double(hex & 0xFF) / 255)
+    }
 }

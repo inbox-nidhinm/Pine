@@ -55,6 +55,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ) { [weak self] _ in
             MainActor.assumeIsolated {
                 self?.compareWindow?.appearance = AppSettings.appearance.window
+                self?.settingsWindow?.appearance = AppSettings.appearance.window
             }
         }
     }
@@ -169,6 +170,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if settingsWindow == nil {
             let window = makeChromelessWindow(SettingsView(), size: Theme.settingsWindow)
             window.title = "Niram Settings"
+            // Light or dark as the Appearance setting says, as the card is.
+            window.appearance = AppSettings.appearance.window
             NotificationCenter.default.addObserver(
                 forName: NSWindow.willCloseNotification, object: window, queue: .main
             ) { [weak self] _ in

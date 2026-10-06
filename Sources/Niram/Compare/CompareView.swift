@@ -230,7 +230,7 @@ private struct ContrastSection: View {
 
 /// Dark type on a light colour, white on a dark one.
 func ink(on color: NSColor) -> Color {
-    color.relativeLuminance > Theme.lightColor ? Theme.textOnLight : Theme.textPrimary
+    color.relativeLuminance > Theme.lightColor ? Theme.textOnLight : Theme.textOnDark
 }
 
 /// A WCAG level: its name in the middle's type, outlined at 40% of it, as

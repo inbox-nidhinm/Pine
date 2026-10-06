@@ -63,7 +63,7 @@ struct PillToggle: View {
         Button(action: toggle) {
             ZStack(alignment: isOn ? .trailing : .leading) {
                 RoundedRectangle(cornerRadius: Theme.radiusTrack)
-                    .fill(isOn ? (hovering ? Theme.chosenHover : Theme.chosen) : Theme.canvas)
+                    .fill(isOn ? (hovering ? Theme.switchOnHover : Theme.switchOn) : Theme.switchOff)
                     .overlay(RoundedRectangle(cornerRadius: Theme.radiusTrack)
                         .strokeBorder(hovering ? Theme.edgeHover : Theme.edge, lineWidth: Theme.hairline))
                 RoundedRectangle(cornerRadius: Theme.radiusTrack - 1)
