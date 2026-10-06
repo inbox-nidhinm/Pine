@@ -187,18 +187,16 @@ func makeChromelessWindow<Content: View>(_ root: Content, size: CGSize? = nil) -
 
 /// A window that is only its content's shape, as the Compare card: no title
 /// bar and no traffic lights, see-through round the card, with the window's
-/// own shadow following it. It moves by dragging and closes with Escape or ⌘W.
+/// own shadow following it. It floats above other apps' windows, so it never
+/// goes behind them, and leaves the screen only by its close button or ⌘W
+/// (the user's choice, 6 October 2026: Escape no longer closes it).
 final class CardWindow: NSWindow {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { true }
 
+    /// Escape ends typing in a code, and nothing else.
     override func cancelOperation(_ sender: Any?) {
-        // Escape in a field ends the typing first; a second Escape closes.
-        if firstResponder is NSText {
-            makeFirstResponder(nil)
-        } else {
-            close()
-        }
+        if firstResponder is NSText { makeFirstResponder(nil) }
     }
 
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
@@ -238,6 +236,10 @@ func makeCardWindow<Content: View>(_ root: Content, size: CGSize) -> CardWindow 
     window.appearance = NSAppearance(named: .darkAqua)
     window.isReleasedWhenClosed = false
     window.isRestorable = false
+    // Above every other app's windows, and still there when Niram is not
+    // the app in front.
+    window.level = .floating
+    window.hidesOnDeactivate = false
     window.center()
     return window
 }

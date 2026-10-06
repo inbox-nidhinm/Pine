@@ -8,10 +8,6 @@ final class CompareModel {
     var second: NSColor = NSColor(hexString: "#293029") ?? .black
 
     var ratio: CGFloat { NSColor.contrastRatio(first, second) }
-
-    func swap() {
-        (first, second) = (second, first)
-    }
 }
 
 /// The Compare window as the user drew it in Figma (Twine file, node 143:21,
@@ -24,8 +20,9 @@ final class CompareModel {
 ///
 /// The design shows the card at rest; the rest is ours, as the user asked: a
 /// click anywhere on a colour picks a new one, a click on its code types one,
-/// the copy button sits after the code at half strength, and the swap button
-/// shows under the levels while the pointer is over the middle. The design's
+/// the copy button sits after the code at half strength, and a drag anywhere
+/// moves the card, which floats above every other app's windows until its
+/// close button takes it away. The design's
 /// red dot on the top-left corner is drawn as macOS's own red traffic light
 /// (the user's earlier request), at its own size, centred on the corner; the
 /// window has a clear margin round the card so it can stand out past it.
@@ -55,8 +52,8 @@ struct CompareView: View {
 }
 
 /// One colour filling its third of the card, its hex code in the middle. A
-/// click anywhere on the colour picks a new one from the screen; a click on
-/// the code types one. The copy button sits after the code at half strength,
+/// click anywhere on the colour picks a new one from the screen and a drag
+/// moves the card; a click on the code types one. The copy button sits after the code at half strength,
 /// with an empty box of its width before the code so the code stays centred.
 private struct ColorSection: View {
     @Binding var color: NSColor
@@ -70,17 +67,13 @@ private struct ColorSection: View {
 
     var body: some View {
         ZStack {
-            // The whole colour is the eyedropper: a real button, so a click
-            // always lands (a tap gesture can miss posted clicks).
-            Button(action: pick) {
-                UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
-                    .fill(Color(nsColor: color))
-                    .overlay(UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
-                        .strokeBorder(Theme.compareEdge, lineWidth: Theme.hairline))
-                    .contentShape(UnevenRoundedRectangle(cornerRadii: corners, style: .continuous))
-            }
-            .buttonStyle(.plain)
-            .help("Click to pick a colour from anywhere on screen")
+            UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
+                .fill(Color(nsColor: color))
+                .overlay(UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
+                    .strokeBorder(Theme.compareEdge, lineWidth: Theme.hairline))
+            // A click on the colour picks a new one; a drag moves the card.
+            PressSurface(corners: corners, help: "Click to pick a colour from anywhere on screen. Drag to move.",
+                         onClick: pick)
 
             HStack(spacing: Theme.rowGap) {
                 Color.clear.frame(width: Theme.hoverButton, height: Theme.hoverButton)
@@ -130,42 +123,43 @@ private struct ColorSection: View {
 }
 
 /// The middle of the card: the ratio in the display face, then a pill for
-/// each WCAG level, outlined when reached and dimmed when not. The swap button
-/// shows under the pills while the pointer is over it.
+/// each WCAG level, outlined when reached and dimmed when not. A drag on it
+/// moves the card.
 private struct ContrastSection: View {
     let model: CompareModel
 
-    @State private var hovering = false
+    private static let corners = RectangleCornerRadii(topLeading: Theme.radiusCompareMiddle,
+                                                      bottomLeading: Theme.radiusCompareMiddle,
+                                                      bottomTrailing: Theme.radiusCompareMiddle,
+                                                      topTrailing: Theme.radiusCompareMiddle)
 
     var body: some View {
-        VStack(spacing: Theme.readoutGap) {
-            HStack(alignment: .lastTextBaseline, spacing: Theme.ratioGap) {
-                Text(shownRatio(model.ratio))
-                    .font(ThemeFont.display(Theme.ratioSize, .thin))
-                    .foregroundStyle(Theme.textPrimary)
-                Text(": 1")
-                    .font(ThemeFont.display(Theme.ratioUnit, .thin))
-                    .foregroundStyle(Theme.textTertiary)
-            }
-            HStack(spacing: Theme.pillGap) {
-                ForEach(ContrastLevel.allCases, id: \.self) { level in
-                    LevelPill(level: level, passes: level.passes(model.ratio))
+        ZStack {
+            RoundedRectangle(cornerRadius: Theme.radiusCompareMiddle, style: .continuous)
+                .fill(Theme.canvas)
+                .overlay(RoundedRectangle(cornerRadius: Theme.radiusCompareMiddle, style: .continuous)
+                    .strokeBorder(Theme.compareEdge, lineWidth: Theme.hairline))
+            PressSurface(corners: Self.corners)
+            VStack(spacing: Theme.readoutGap) {
+                HStack(alignment: .lastTextBaseline, spacing: Theme.ratioGap) {
+                    Text(shownRatio(model.ratio))
+                        .font(ThemeFont.display(Theme.ratioSize, .thin))
+                        .foregroundStyle(Theme.textPrimary)
+                    Text(": 1")
+                        .font(ThemeFont.display(Theme.ratioUnit, .thin))
+                        .foregroundStyle(Theme.textTertiary)
+                }
+                HStack(spacing: Theme.pillGap) {
+                    ForEach(ContrastLevel.allCases, id: \.self) { level in
+                        LevelPill(level: level, passes: level.passes(model.ratio))
+                    }
                 }
             }
-            .overlay(alignment: .bottom) {
-                OnColorButton(icon: .swap, ink: Theme.textPrimary, help: "Swap the two colours") { model.swap() }
-                    .alignmentGuide(.bottom) { $0[.bottom] - Theme.hoverGap - Theme.hoverButton }
-                    .opacity(hovering ? 1 : 0)
-                    .allowsHitTesting(hovering)
-            }
+            // The words are not pressable, so a drag on them reaches the
+            // surface under them.
+            .allowsHitTesting(false)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(RoundedRectangle(cornerRadius: Theme.radiusCompareMiddle, style: .continuous)
-            .fill(Theme.canvas)
-            .overlay(RoundedRectangle(cornerRadius: Theme.radiusCompareMiddle, style: .continuous)
-                .strokeBorder(Theme.compareEdge, lineWidth: Theme.hairline)))
-        .contentShape(Rectangle())
-        .onHover { over in withAnimation(Theme.hoverFade) { hovering = over } }
     }
 }
 

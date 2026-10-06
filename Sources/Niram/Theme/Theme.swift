@@ -190,10 +190,10 @@ public enum Theme {
     /// the type's own size, since the type stops shrinking at `smallestType`.
     public static let pillPadH = pillText * 10 / 13 * 0.8
     public static let pillPadV = pillText * 4 / 13
-    /// The card's small buttons (copy, swap): the swap button's gap under the
-    /// levels, and their box and icon.
-    public static let hoverGap = compare(12)
+    /// The copy button beside a code: its box and icon.
     public static let hoverButton: CGFloat = 20
+    /// How far a press must move before it drags the card rather than clicks.
+    public static let dragStart: CGFloat = 3
     /// macOS's close button, at the size the traffic lights draw it.
     public static let trafficLight: CGFloat = 14
     /// The copy button beside a hex code, at half strength so it stays quiet.
@@ -205,8 +205,6 @@ public enum Theme {
     public static let labelGap: CGFloat = 6
     /// How long the copy button shows its tick.
     public static let copiedShown: Double = 1
-    /// Buttons fading in under the pointer.
-    public static let hoverFade = Animation.easeOut(duration: 0.15)
 
     // MARK: Settings
 
