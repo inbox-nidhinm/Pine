@@ -148,28 +148,54 @@ public enum Theme {
 
     // MARK: Compare
 
-    /// The Compare window: the preview runs under the whole of it, with the
-    /// colours panel floating over its left side.
-    public static let compareWindow = CGSize(width: 680, height: 420)
-    /// The panel's width, as Twine's layers panel.
-    public static let panelWidth: CGFloat = 232
-    /// The panel's top row, which holds the traffic lights and the swap button.
-    public static let compareHeader: CGFloat = 40
+    /// The Compare card (the user's Figma, Twine file, node 140:2493): the
+    /// first colour, the contrast, the second colour, stacked on `panelHover`,
+    /// which shows in the corners between them. Every measure is the design's
+    /// times `compareScale` (half, the user's choice on 6 October 2026: the
+    /// design's 320 by 840 was too big), type no smaller than `smallestType`.
+    public static let compareScale: CGFloat = 0.5
+    public static let smallestType: CGFloat = 10
+    private static func compare(_ design: CGFloat) -> CGFloat { design * compareScale }
+    private static func compareType(_ design: CGFloat) -> CGFloat { max(design * compareScale, smallestType) }
+
+    public static let compareCard = CGSize(width: compare(320), height: compare(840))
+    public static let radiusCompareCard = compare(88)
+    /// The colours' corners where they meet the middle, and the middle's own.
+    public static let radiusCompareColor = compare(12)
+    public static let radiusCompareMiddle = compare(31)
+    /// #1A1A1A. A hex code on a light colour; on a dark one it is white.
+    public static let textOnLight = Color(red: 0x1A / 255, green: 0x1A / 255, blue: 0x1A / 255)
+    /// Above this WCAG luminance a colour takes `textOnLight`.
+    public static let lightColor: CGFloat = 0.4
+    /// A colour's hex code, and how wide its field is.
+    public static let compareHex = compareType(20)
+    public static let compareHexField = compare(120)
+    /// The contrast ratio's figures in the display face, and the ": 1".
+    public static let ratioSize = compareType(64)
+    public static let ratioUnit = compareType(32)
+    public static let ratioGap = compare(8)
+    /// The ratio over the level pills, and the pills' gap, inset and type.
+    public static let readoutGap = compare(32)
+    public static let pillGap = compare(12)
+    public static let pillText = compareType(13)
+    /// Round the pill's word: the design's 10 and 4 round 13 pt type, kept to
+    /// the type's own size, since the type stops shrinking at `smallestType`.
+    public static let pillPadH = pillText * 10 / 13 * 0.8
+    public static let pillPadV = pillText * 4 / 13
+    /// The buttons that show under the pointer: their gap from what they
+    /// belong to, their box and their icon.
+    public static let hoverGap = compare(12)
+    public static let hoverButton: CGFloat = 20
+    public static let hoverIcon: CGFloat = 13
     /// The small icon in a square glyph button.
     public static let buttonIcon: CGFloat = 15
-    /// Between a colour's name and its row, and between the two colours.
+    /// Between a colour's name and its row, used by the history card.
     public static let labelGap: CGFloat = 6
-    public static let sectionGap: CGFloat = 12
-    /// The contrast ratio's figures, and the ": 1" after them.
-    public static let ratioSize: CGFloat = 56
-    public static let ratioUnit: CGFloat = 22
-    /// The preview's samples: large "Aa" in the display face, then WCAG's
-    /// large text (18 pt) and body text (12 pt) under it.
-    public static let previewLarge: CGFloat = 120
-    public static let previewLargeText: CGFloat = 18
-    public static let previewBodyText: CGFloat = 12
     /// How long the copy button shows its tick.
     public static let copiedShown: Double = 1
+    /// Buttons fading in under the pointer.
+    public static let hoverFade = Animation.easeOut(duration: 0.15)
+
     // MARK: Settings
 
     /// The Settings window: the page's margin, its title's size and the block

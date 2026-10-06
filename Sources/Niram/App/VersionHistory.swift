@@ -13,7 +13,7 @@ enum VersionHistory {
 
     /// How many pushes to GitHub the app has had, this one included. Raise it by
     /// one with every push: the first was v0.0.01, the 100th is v0.1.00.
-    static let pushes = 5
+    static let pushes = 6
 
     static var release: String { String(format: "v0.%d.%02d", pushes / 100, pushes % 100) }
 
@@ -36,8 +36,8 @@ enum VersionHistory {
         .init(date: "6 October 2026", title: "The redesign", features: [
             "The menu bar icon opens a panel in Niram's own look in place of the system menu: Pick Colour as its main button, with its shortcut; the recent colours as swatches with their hex codes, each copied again with a click (a tick shows as it copies); then Compare Colours, Settings (⌘,) and Quit Niram (⌘Q). Escape or a click anywhere else closes it.",
             "Recent colours are kept when Niram quits.",
-            "Compare is laid out as Twine's editor: the window shows your background colour with the text colour on it (a large Aa, then WCAG's large text and body text sizes), and a panel down the left holds the two colours, Text and Background, each with its hex code, an eyedropper and a copy button, and a button to swap them.",
-            "The contrast ratio is shown large, in PP Kyoto, with AA, AA Large and AAA under it, each ticked when reached and dimmed with a cross when not. Hover over one for the ratio it needs.",
+            "Compare is a small card, as drawn in Figma: the first colour on top with its hex code, the contrast in the middle, the second colour at the bottom. It has no title bar: drag it to move it, and Escape or ⌘W closes it. Click a hex code to type a new one; the eyedropper and copy buttons show under it while the pointer is over the colour, and the swap button under the levels while it is over the middle.",
+            "The contrast ratio is shown large, in PP Kyoto, with a pill for each of AA, AA Large and AAA, outlined when reached and dimmed when not. Hover over one for the ratio it needs.",
             "Hex codes can be typed in Figma's short forms: 0 is 000000, 1a is 1A1A1A, abc is AABBCC.",
             "Settings is laid out as Twine's Settings page: its title under the traffic lights, then cards of rows, each with its icon: Picking (the shortcut, clicked to record a new one), General (launch at login) and Hex Codes (uppercase, include #, and the hex code a colour would be copied as with those choices). Switches are Twine's own. What each setting does is in its tooltip.",
             "Version History, at the foot of Settings beside the build number, lists every build of Niram and what it changed.",

@@ -10,7 +10,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let panel = StatusPanel()
 
     private let compareModel = CompareModel()
-    private var compareWindow: ChromelessWindow?
+    private var compareWindow: CardWindow?
     private var settingsWindow: ChromelessWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -91,13 +91,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func showCompareWindow() {
         if compareWindow == nil {
-            let window = makeChromelessWindow(CompareView(model: compareModel), size: Theme.compareWindow)
+            let window = makeCardWindow(CompareView(model: compareModel), size: Theme.compareCard)
             window.title = "Niram"
             compareWindow = window
         }
         NSApp.activate(ignoringOtherApps: true)
         compareWindow?.makeKeyAndOrderFront(nil)
-        compareWindow?.clearInitialFocus()
+        // Nothing typed in until a code is clicked.
+        DispatchQueue.main.async { [weak self] in self?.compareWindow?.makeFirstResponder(nil) }
     }
 
     private func showSettingsWindow() {

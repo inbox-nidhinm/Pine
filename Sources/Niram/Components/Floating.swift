@@ -184,3 +184,60 @@ func makeChromelessWindow<Content: View>(_ root: Content, size: CGSize? = nil) -
     TrafficLights.keepPlaced(in: window)
     return window
 }
+
+/// A window that is only its content's shape, as the Compare card: no title
+/// bar and no traffic lights, see-through round the card, with the window's
+/// own shadow following it. It moves by dragging and closes with Escape or ⌘W.
+final class CardWindow: NSWindow {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+
+    override func cancelOperation(_ sender: Any?) {
+        // Escape in a field ends the typing first; a second Escape closes.
+        if firstResponder is NSText {
+            makeFirstResponder(nil)
+        } else {
+            close()
+        }
+    }
+
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command,
+           event.charactersIgnoringModifiers == "w" {
+            close()
+            return true
+        }
+        return super.performKeyEquivalent(with: event)
+    }
+
+    /// A click outside the field being typed in ends the typing, as in
+    /// `ChromelessWindow`.
+    override func sendEvent(_ event: NSEvent) {
+        if event.type == .leftMouseDown,
+           let fieldEditor = firstResponder as? NSText,
+           let field = fieldEditor.delegate as? NSView,
+           let content = contentView {
+            let hit = content.hitTest(content.superview?.convert(event.locationInWindow, from: nil) ?? event.locationInWindow)
+            if hit.map({ !$0.isDescendant(of: field) }) ?? true { makeFirstResponder(nil) }
+        }
+        super.sendEvent(event)
+    }
+}
+
+@MainActor
+func makeCardWindow<Content: View>(_ root: Content, size: CGSize) -> CardWindow {
+    let hosting = NSHostingView(rootView: root)
+    hosting.sizingOptions = []
+    let window = CardWindow(contentRect: NSRect(origin: .zero, size: size),
+                            styleMask: [.borderless], backing: .buffered, defer: false)
+    window.contentView = hosting
+    window.isOpaque = false
+    window.backgroundColor = .clear
+    window.hasShadow = true
+    window.isMovableByWindowBackground = true
+    window.appearance = NSAppearance(named: .darkAqua)
+    window.isReleasedWhenClosed = false
+    window.isRestorable = false
+    window.center()
+    return window
+}
