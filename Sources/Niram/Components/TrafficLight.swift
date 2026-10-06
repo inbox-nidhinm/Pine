@@ -45,7 +45,29 @@ struct TrafficLightClose: NSViewRepresentable {
 
         required init?(coder: NSCoder) { fatalError("not used") }
 
-        override var intrinsicContentSize: NSSize { button?.frame.size ?? .zero }
+        /// Drawn larger by `Theme.compareCloseDot / Theme.trafficLightDot`, the
+        /// same both ways, centred in whatever box the holder is given: the
+        /// bounds are the frame shrunk by that scale, set again on every change
+        /// of frame. The standalone button is 14 by 16 points round a 12 point
+        /// dot; fitting that box to a square stretched it across and not down
+        /// (6 October 2026), so the scale comes from the dot, never the box.
+        override func setFrameSize(_ newSize: NSSize) {
+            super.setFrameSize(newSize)
+            fitBounds()
+        }
+
+        override func layout() {
+            super.layout()
+            fitBounds()
+        }
+
+        private func fitBounds() {
+            guard let own = button?.frame.size, frame.width > 0, frame.height > 0 else { return }
+            let scale = Theme.compareCloseDot / Theme.trafficLightDot
+            let wanted = NSSize(width: frame.width / scale, height: frame.height / scale)
+            if bounds.size != wanted { setBoundsSize(wanted) }
+            button?.setFrameOrigin(NSPoint(x: (wanted.width - own.width) / 2, y: (wanted.height - own.height) / 2))
+        }
 
         @objc private func pressed() { action() }
 

@@ -24,7 +24,8 @@ final class CompareModel {
 /// moves the card, which floats above every other app's windows until its
 /// close button takes it away. The design's
 /// red dot on the top-left corner is drawn as macOS's own red traffic light
-/// (the user's earlier request), at its own size, centred on the corner; the
+/// (the user's earlier request), a little larger than its own size
+/// (`Theme.compareClose`), centred on the corner; the
 /// window has a clear margin round the card so it can stand out past it.
 struct CompareView: View {
     let model: CompareModel
@@ -43,8 +44,8 @@ struct CompareView: View {
         .frame(width: Theme.compareCard.width, height: Theme.compareCard.height)
         .overlay(alignment: .topLeading) {
             TrafficLightClose(action: close)
-                .frame(width: Theme.trafficLight, height: Theme.trafficLight)
-                .offset(x: -Theme.trafficLight / 2, y: -Theme.trafficLight / 2)
+                .frame(width: Theme.compareClose, height: Theme.compareClose)
+                .offset(x: -Theme.compareClose / 2, y: -Theme.compareClose / 2)
         }
         .padding(Theme.compareMargin)
         .ignoresSafeArea()

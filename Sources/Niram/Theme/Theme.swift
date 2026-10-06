@@ -160,8 +160,9 @@ public enum Theme {
 
     public static let compareCard = CGSize(width: compare(320), height: compare(840))
     /// The clear margin round the card in its window, so the close button can
-    /// stand out past the corner it sits on; and the window's size with it.
-    public static let compareMargin: CGFloat = 8
+    /// stand out past the corner it sits on, whole, with a little room; and
+    /// the window's size with it.
+    public static let compareMargin = (compareClose / 2).rounded(.up) + 2
     public static let compareWindow = CGSize(width: compareCard.width + compareMargin * 2,
                                              height: compareCard.height + compareMargin * 2)
     /// The card's outer corners, at its top and bottom.
@@ -194,8 +195,14 @@ public enum Theme {
     public static let hoverButton: CGFloat = 20
     /// How far a press must move before it drags the card rather than clicks.
     public static let dragStart: CGFloat = 3
-    /// macOS's close button, at the size the traffic lights draw it.
+    /// macOS's close button: its own size (14 points, a 12 point dot), and the
+    /// size the card draws it, scaled so the dot is 14 points (the user's
+    /// choice on 6 October 2026, "a bit bigger", between macOS's 12 and the
+    /// design's 16).
     public static let trafficLight: CGFloat = 14
+    public static let trafficLightDot: CGFloat = 12
+    public static let compareCloseDot: CGFloat = 14
+    public static let compareClose = trafficLight * compareCloseDot / trafficLightDot
     /// The copy button beside a hex code, at half strength so it stays quiet,
     /// and its fade as the pointer comes onto its colour and leaves.
     public static let quietButton: Double = 0.5
