@@ -10,9 +10,11 @@ struct MenuBarActions {
     var quit: () -> Void
 }
 
-/// The card under the menu bar icon, in place of the system menu: Pick Colour
-/// as the main button, the recent colours as swatches with their hex codes,
-/// then the app's commands as Twine's menu rows.
+/// The card under the menu bar icon, in place of the system menu: Pick Colour,
+/// the recent colours with their hex codes, then Show App, Settings and Quit.
+/// Every option is the same row (the user's choice, 6 October 2026): no
+/// icons, one height, the accent under the pointer; a recent colour keeps its
+/// swatch, which is the colour itself.
 struct MenuBarPanel: View {
     let recents: RecentColors
     let shortcut: String
@@ -20,7 +22,7 @@ struct MenuBarPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            PrimaryButton(title: "Pick Colour", icon: .eyedropper, shortcut: shortcut, action: actions.pick)
+            PanelRow(title: "Pick Colour", shortcut: shortcut, action: actions.pick)
 
             if !recents.hexes.isEmpty {
                 Text("Recent")
@@ -29,15 +31,15 @@ struct MenuBarPanel: View {
                     .padding(.horizontal, Theme.menuItemPad)
                     .frame(height: Theme.control, alignment: .bottomLeading)
                 ForEach(recents.hexes.prefix(RecentColors.inPanel), id: \.self) { hex in
-                    RecentColorRow(hex: hex) { actions.copy(hex) }
+                    PanelRow(title: hex, swatch: NSColor(hexString: hex), action: { actions.copy(hex) })
                 }
             }
 
             Rectangle().fill(Theme.border).frame(height: Theme.hairline).padding(.vertical, Theme.menuPad)
 
-            CommandRow(title: "Compare Colours", icon: .swap, action: actions.compare)
-            CommandRow(title: "Settings", icon: .settings, shortcut: "⌘,", action: actions.settings)
-            CommandRow(title: "Quit Niram", icon: .close, shortcut: "⌘Q", action: actions.quit)
+            PanelRow(title: "Show App", action: actions.compare)
+            PanelRow(title: "Settings", shortcut: "⌘,", action: actions.settings)
+            PanelRow(title: "Quit Niram", shortcut: "⌘Q", action: actions.quit)
         }
         .padding(Theme.menuPad)
         .frame(width: Theme.menuPanelWidth, alignment: .leading)
@@ -47,50 +49,12 @@ struct MenuBarPanel: View {
     }
 }
 
-/// A recent colour: its swatch and hex code. A click copies it, and the copy
-/// icon at the end becomes a tick.
-private struct RecentColorRow: View {
-    let hex: String
-    let copy: () -> Void
-
-    @State private var hovering = false
-    @State private var copied = false
-
-    var body: some View {
-        Button {
-            copied = true
-            copy()
-        } label: {
-            HStack(spacing: 8) {
-                RoundedRectangle(cornerRadius: Theme.radiusSwatch)
-                    .fill(Color(nsColor: NSColor(hexString: hex) ?? .clear))
-                    .overlay(RoundedRectangle(cornerRadius: Theme.radiusSwatch)
-                        .strokeBorder(hovering ? Theme.edgeHover : Theme.edge, lineWidth: Theme.hairline))
-                    .frame(width: Theme.swatch, height: Theme.swatch)
-                Text(hex)
-                    .font(ThemeFont.hex)
-                    .foregroundStyle(Theme.textPrimary)
-                Spacer(minLength: 0)
-                IconView(copied ? .check : .copy, size: Theme.menuIcon)
-                    .foregroundStyle(copied ? Theme.textPrimary : Theme.textTertiary)
-                    .opacity(hovering || copied ? 1 : 0)
-            }
-            .padding(.horizontal, Theme.menuItemPad)
-            .frame(height: Theme.listRow)
-            .background(RoundedRectangle(cornerRadius: Theme.radiusRow)
-                .fill(hovering ? Theme.panelRaised : .clear))
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .onHover { hovering = $0 }
-    }
-}
-
-/// One of the app's commands, as a row of Twine's menus: the accent behind it
-/// under the pointer, its shortcut at the end.
-private struct CommandRow: View {
+/// One option of the panel: a colour's swatch when it is one, its name (a hex
+/// code in the code face), and its shortcut at the end; the accent under the
+/// pointer.
+private struct PanelRow: View {
     let title: String
-    let icon: Icon
+    var swatch: NSColor?
     var shortcut: String?
     let action: () -> Void
 
@@ -98,10 +62,16 @@ private struct CommandRow: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
-                IconView(icon, size: Theme.menuIcon)
+            HStack(spacing: Theme.labelGap) {
+                if let swatch {
+                    RoundedRectangle(cornerRadius: Theme.radiusSwatch)
+                        .fill(Color(nsColor: swatch))
+                        .overlay(RoundedRectangle(cornerRadius: Theme.radiusSwatch)
+                            .strokeBorder(Theme.edge, lineWidth: Theme.hairline))
+                        .frame(width: Theme.swatch, height: Theme.swatch)
+                }
                 Text(title)
-                    .font(ThemeFont.label)
+                    .font(swatch == nil ? ThemeFont.label : ThemeFont.hex)
                     .lineLimit(1)
                 Spacer(minLength: 0)
                 if let shortcut {
@@ -112,7 +82,7 @@ private struct CommandRow: View {
             }
             .foregroundStyle(Theme.textPrimary)
             .padding(.horizontal, Theme.menuItemPad)
-            .frame(height: Theme.control)
+            .frame(height: Theme.panelOption)
             .background(RoundedRectangle(cornerRadius: Theme.radiusRow)
                 .fill(hovering ? Theme.accent : .clear))
             .contentShape(Rectangle())

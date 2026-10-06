@@ -13,7 +13,7 @@ enum VersionHistory {
 
     /// How many pushes to GitHub the app has had, this one included. Raise it by
     /// one with every push: the first was v0.0.01, the 100th is v0.1.00.
-    static let pushes = 19
+    static let pushes = 21
 
     static var release: String { String(format: "v0.%d.%02d", pushes / 100, pushes % 100) }
 
@@ -34,7 +34,9 @@ enum VersionHistory {
 
     static let builds: [Build] = [
         .init(date: "6 October 2026", title: "The redesign", features: [
-            "The menu bar icon opens a panel in Niram's own look in place of the system menu: Pick Colour as its main button, with its shortcut; the recent colours as swatches with their hex codes, each copied again with a click (a tick shows as it copies); then Compare Colours, Settings (⌘,) and Quit Niram (⌘Q). Escape or a click anywhere else closes it.",
+            "The menu bar icon opens a panel in Niram's own look in place of the system menu, every option the same row with no icons: Pick Colour with its shortcut, the recent colours with their hex codes (a click copies one again), then Show App, Settings (⌘,) and Quit Niram (⌘Q). Escape or a click anywhere else closes it.",
+            "Niram has its own icons, the designer's: the app icon, and a new menu bar icon that follows the menu bar's colour.",
+            "Show Niram in, under General in Settings: Menu Bar (as before), Dock, or Both. In the Dock Niram is an ordinary app, in ⌘Tab, with an app menu (Pick Colour, Show App, Settings, Quit), an Edit menu so copy and paste work while typing a hex code, and a Dock menu; clicking its Dock icon shows the app.",
             "Recent colours are kept when Niram quits.",
             "Compare is a small stack of three pieces, as drawn in Figma: the first colour on top with its hex code, the contrast in the middle, the second colour at the bottom, each with its own rounded corners and a faint edge, nothing behind them. Click anywhere on a colour to pick a new one from the screen, or click its hex code to type one; the copy button shows beside a code, quietly, while the pointer is over its colour. Press anywhere on the stack and drag to move it. It stays above every other app's windows until you close it with the red button on its top-left corner (macOS's own, drawn a little larger) or ⌘W.",
             "The Compare card follows your Mac's light or dark mode, as drawn in Figma: in light mode its middle is a light grey with dark figures. Settings has an Appearance choice under General: System (the default), Light or Dark.",
@@ -42,7 +44,7 @@ enum VersionHistory {
             "Opening Settings while the Compare card is open puts the card away; closing Settings brings it back. If the card was not open, it stays closed.",
             "The contrast ratio is shown large, in PP Kyoto, with a pill for each of AA, AA Large and AAA, outlined when reached and dimmed when not.",
             "Hex codes can be typed in Figma's short forms: 0 is 000000, 1a is 1A1A1A, abc is AABBCC.",
-            "Settings is laid out as Twine's Settings page: its title under the traffic lights, then cards of rows, each with its icon: Picking (the shortcut, clicked to record a new one), General (launch at login) and Hex Codes (uppercase, include #, and the hex code a colour would be copied as with those choices). Switches are Twine's own.",
+            "Settings is one vertical list in a tall window: Global Shortcut (click it to record a new one), Hex Codes (uppercase, include #, and the hex code a colour would be copied as with those choices) and General (Appearance, Show Niram in, launch at login), each row with its icon. Switches are Twine's own.",
             "Version History, at the foot of Settings beside the build number, lists every build of Niram and what it changed.",
             "Settings has no grain: its page and cards are flat.",
             "Nothing in Niram shows a hint when the pointer rests on it.",

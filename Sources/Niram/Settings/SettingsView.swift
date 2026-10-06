@@ -3,13 +3,15 @@ import AppKit
 import Carbon
 import ServiceManagement
 
-/// The Settings window, laid out as Twine's Settings page: the title under the
-/// traffic lights, each kind of setting as a card of rows in two columns, and
-/// Version History with the build at the foot.
+/// The Settings window: the title under the traffic lights, then one vertical
+/// list (the user's choice, 6 October 2026, in place of Twine's cards), each
+/// kind of setting a heading over its rows, in a tall window; Version History
+/// with the build at the foot.
 struct SettingsView: View {
     @AppStorage(AppSettings.uppercaseHexKey) private var uppercaseHex = true
     @AppStorage(AppSettings.includeHashKey) private var includeHash = true
     @AppStorage(AppSettings.appearanceKey) private var appearance = AppSettings.Appearance.system.rawValue
+    @AppStorage(AppSettings.presenceKey) private var presence = AppSettings.Presence.menuBar.rawValue
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var showsHistory = false
 
@@ -25,16 +27,15 @@ struct SettingsView: View {
 
                 Rectangle().fill(Theme.border).frame(height: Theme.hairline)
 
-                HStack(alignment: .top, spacing: Theme.settingsCardGap) {
-                    VStack(spacing: Theme.settingsCardGap) {
-                        picking
+                ScrollView {
+                    VStack(alignment: .leading, spacing: Theme.settingsSectionGap) {
+                        shortcut
+                        hexCodes
                         general
                     }
-                    .frame(width: Theme.settingsColumn)
-                    hexCodes
-                        .frame(width: Theme.settingsColumn)
+                    .padding(Theme.settingsMargin)
                 }
-                .padding(Theme.settingsMargin)
+                .scrollIndicators(.never)
 
                 // Not a setting: nothing here changes what the app does, so it
                 // sits apart, at the foot.
@@ -48,19 +49,22 @@ struct SettingsView: View {
                 }
                 .padding(Theme.settingsMargin)
             }
-            .fixedSize()
+            .frame(width: Theme.settingsWindow.width, height: Theme.settingsWindow.height)
 
             if showsHistory {
                 VersionHistoryCard { showsHistory = false }
             }
         }
         .windowGround(grain: false)
+        // Up under the hidden title bar, so the window is exactly its size;
+        // the title block leaves room for the traffic lights.
+        .ignoresSafeArea()
     }
 
     // MARK: Cards
 
-    private var picking: some View {
-        card("Picking") {
+    private var shortcut: some View {
+        section("Global Shortcut") {
             row(.eyedropper, "Pick colour") {
                 ShortcutField()
             }
@@ -68,7 +72,7 @@ struct SettingsView: View {
     }
 
     private var hexCodes: some View {
-        card("Hex Codes") {
+        section("Hex Codes") {
             row(tile: AnyView(Text("A").font(ThemeFont.hex)), "Uppercase") {
                 PillToggle(isOn: uppercaseHex) { uppercaseHex.toggle() }
             }
@@ -89,12 +93,20 @@ struct SettingsView: View {
     }
 
     private var general: some View {
-        card("General") {
+        section("General") {
             row(tile: AnyView(AppearanceGlyph()), "Appearance") {
                 SegmentRow(options: AppSettings.Appearance.allCases.map { ($0.rawValue, $0.name) },
                            chosen: appearance) { picked in
                     appearance = picked
                     NotificationCenter.default.post(name: AppSettings.appearanceChanged, object: nil)
+                }
+            }
+            dashes
+            row(tile: AnyView(IconView(.settings, size: Theme.settingsTileIcon)), "Show Niram in") {
+                SegmentRow(options: AppSettings.Presence.allCases.map { ($0.rawValue, $0.name) },
+                           chosen: presence) { picked in
+                    presence = picked
+                    NotificationCenter.default.post(name: AppSettings.presenceChanged, object: nil)
                 }
             }
             dashes
@@ -123,29 +135,21 @@ struct SettingsView: View {
 
     // MARK: Pieces
 
-    /// A kind of setting: its name over a card holding its rows.
-    private func card<Content: View>(_ title: String, @ViewBuilder _ rows: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: Theme.settingsCardTitleGap) {
+    /// A kind of setting: its name over its rows, flat on the page.
+    private func section<Content: View>(_ title: String, @ViewBuilder _ rows: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
             Text(title)
                 .font(ThemeFont.labelStrong)
                 .foregroundStyle(Theme.textSecondary)
-                .padding(.leading, Theme.rowGap)
-            // As far in at the top and bottom as at the sides: a row already
-            // leaves `rowInset` round its tile, so the card adds the rest.
+                .padding(.bottom, Theme.settingsCardTitleGap)
             VStack(alignment: .leading, spacing: 0) { rows() }
-                .padding(.horizontal, Theme.panelPad)
-                .padding(.vertical, Theme.panelPad - Self.rowInset)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                // Flat on the page, with no shadow, as Twine's.
-                .floatingPanel(shadow: false, grain: false)
         }
     }
 
-    /// The dashed line between two rows of a card.
+    /// The line between two rows of a section.
     private var dashes: some View {
-        DashedLine()
-            .stroke(Theme.border, style: StrokeStyle(lineWidth: Theme.hairline, dash: Theme.settingsDash))
-            .frame(height: Theme.hairline)
+        Rectangle().fill(Theme.border).frame(height: Theme.hairline)
     }
 
     /// An icon on its tile, a name, and the control at the right.
@@ -171,8 +175,6 @@ struct SettingsView: View {
         .frame(height: Theme.settingsRow)
     }
 
-    /// The room a row leaves above and below its tile.
-    private static let rowInset = (Theme.settingsRow - Theme.settingsTile) / 2
 }
 
 /// Half a circle filled: the usual mark for light and dark.
@@ -183,15 +185,6 @@ private struct AppearanceGlyph: View {
             Circle().trim(from: 0.25, to: 0.75).fill()
         }
         .frame(width: Theme.settingsTileIcon, height: Theme.settingsTileIcon)
-    }
-}
-
-private struct DashedLine: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.minX, y: rect.midY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
-        return path
     }
 }
 

@@ -9,9 +9,33 @@ enum AppSettings {
     static let uppercaseHexKey = "uppercaseHex"
     static let includeHashKey = "includeHash"
     static let appearanceKey = "appearance"
+    static let presenceKey = "showIn"
 
     static let shortcutChanged = Notification.Name("NiramShortcutChanged")
     static let appearanceChanged = Notification.Name("NiramAppearanceChanged")
+    static let presenceChanged = Notification.Name("NiramPresenceChanged")
+
+    /// Where Niram shows: its button in the menu bar, its icon in the Dock,
+    /// or both (the user's request, 6 October 2026). The menu bar alone is
+    /// the default, as Niram always was.
+    enum Presence: String, CaseIterable {
+        case menuBar, dock, both
+
+        var name: String {
+            switch self {
+            case .menuBar: "Menu Bar"
+            case .dock: "Dock"
+            case .both: "Both"
+            }
+        }
+
+        var inMenuBar: Bool { self != .dock }
+        var inDock: Bool { self != .menuBar }
+    }
+
+    static var presence: Presence {
+        Presence(rawValue: UserDefaults.standard.string(forKey: presenceKey) ?? "") ?? .menuBar
+    }
 
     /// Light or dark for the Compare card: the Mac's own by default (the
     /// user's choice, 6 October 2026), or always one.

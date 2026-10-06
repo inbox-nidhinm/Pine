@@ -40,7 +40,7 @@ struct VersionHistoryCard: View {
                     .padding(Theme.historyPad)
                 }
             }
-            .frame(width: Theme.historyWidth)
+            .frame(maxWidth: Theme.historyWidth)
             .floatingPanel(grain: false)
             .padding(Theme.settingsMargin)
         }

@@ -33,7 +33,7 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp ".build/$CONFIG/Niram" "$APP/Contents/MacOS/Niram"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
-cp -R Resources/Fonts Resources/Textures "$APP/Contents/Resources/"
+cp -R Resources/Fonts Resources/Textures Resources/AppIcon.icns Resources/menu-icon.svg "$APP/Contents/Resources/"
 plutil -replace CFBundleShortVersionString -string "$VERSION" "$APP/Contents/Info.plist"
 plutil -replace CFBundleVersion -string "$VERSION" "$APP/Contents/Info.plist"
 

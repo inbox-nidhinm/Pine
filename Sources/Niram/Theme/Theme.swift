@@ -48,8 +48,6 @@ public enum Theme {
     public static let chosen = Color(red: 0x5C / 255, green: 0x5C / 255, blue: 0x5C / 255)
     /// `chosen` under the pointer: a step lighter, as `accentHover` is.
     public static let chosenHover = Color(red: 0x68 / 255, green: 0x68 / 255, blue: 0x68 / 255)
-    /// A row under the pointer. Translucent so the grain shows through.
-    public static let rowHover = Color.white.opacity(0.057)
 
     // MARK: Text (text/*)
 
@@ -83,25 +81,18 @@ public enum Theme {
     public static let control: CGFloat = 24
     /// A button with a glyph and a word. One step up from `control`.
     public static let button: CGFloat = control + 8
-    /// The main button of a card.
-    public static let primaryButton: CGFloat = 36
     /// The box an icon is drawn in.
     public static let icon: CGFloat = 20
-    /// An icon in a small button or a row.
-    public static let smallIcon: CGFloat = 16
     /// An icon's line, on its 24-unit grid: it scales with the icon, so a
     /// 20 pt icon draws a 1.6 pt line. The artwork is drawn at 1.5; the app
     /// draws it heavier, as Twine does.
     public static let iconStroke: CGFloat = 1.92
-    public static let panelRow: CGFloat = 24
-    public static let listRow: CGFloat = 32
     /// Switch tracks.
     public static let track: CGFloat = 26
 
     // MARK: Radii (radius/*)
 
     public static let radiusPanel: CGFloat = 10
-    public static let radiusCard: CGFloat = 12
     public static let radiusControl: CGFloat = 5
     public static let radiusTrack: CGFloat = 7
     public static let radiusRow: CGFloat = 4
@@ -116,10 +107,8 @@ public enum Theme {
 
     /// What every panel insets its contents by.
     public static let panelPad: CGFloat = 12
-    /// Card to window edge.
+    /// A panel to the screen's or window's edge.
     public static let floatInset: CGFloat = 8
-    /// Card to card.
-    public static let floatGap: CGFloat = 8
     /// Round a menu's items.
     public static let menuPad: CGFloat = 4
     public static let rowGap: CGFloat = 4
@@ -130,16 +119,16 @@ public enum Theme {
     /// menu bar.
     public static let menuPanelWidth: CGFloat = 240
     public static let menuPanelGap: CGFloat = 6
+    /// The menu bar icon's size.
+    public static let menuBarIcon: CGFloat = 18
+    /// Every option of the panel is this tall.
+    public static let panelOption: CGFloat = 30
     /// The side inset of a row's contents inside its hover ground.
     public static let menuItemPad: CGFloat = 6
-    /// An icon in a menu row, and the tick that marks a row as done.
-    public static let menuIcon: CGFloat = 15
     /// A recent colour's swatch, and its corner.
     public static let swatch: CGFloat = 16
     public static let radiusSwatch: CGFloat = 4
-    /// How long a copied colour shows its tick before the panel goes, and how
-    /// long the menu bar icon shows one after a pick.
-    public static let copiedPause: Double = 0.35
+    /// How long the menu bar icon shows its tick after a copy.
     public static let copiedFlash: Double = 0.6
     /// The panel fading in and out.
     public static let panelFade: Double = 0.12
@@ -240,19 +229,19 @@ public enum Theme {
     // MARK: Settings
 
     /// The Settings window: the page's margin, its title's size and the block
-    /// it sits at the foot of (under the traffic lights), and the width of
-    /// each of its two columns of cards.
+    /// it sits at the foot of (under the traffic lights).
     public static let settingsMargin: CGFloat = 24
     public static let settingsTitle: CGFloat = 21
-    public static let settingsTitleBlock: CGFloat = 76
-    public static let settingsColumn: CGFloat = 320
-    /// Between cards, across and down.
-    public static let settingsCardGap: CGFloat = 24
-    /// A card's name and the card under it.
+    public static let settingsTitleBlock: CGFloat = 104
+    /// The window, much taller than wide (the user's choice: one vertical
+    /// list), and the room between its sections.
+    public static let settingsWindow = CGSize(width: 460, height: 720)
+    public static let settingsSectionGap: CGFloat = 28
+    /// A section's name and its first row.
     public static let settingsCardTitleGap: CGFloat = 8
     /// As Twine's Settings page: a row's height, the icon tile at its left
-    /// and the icon on it, the width of the control at its right, the dashes
-    /// between rows, and the Version History button.
+    /// and the icon on it, the width of the control at its right, and the
+    /// Version History button.
     public static let settingsRow: CGFloat = 48
     public static let settingsTile: CGFloat = 32
     public static let settingsTileIcon: CGFloat = 16
@@ -263,7 +252,6 @@ public enum Theme {
     public static let segmentPad: CGFloat = 8
     public static let trayPad: CGFloat = 2
     public static let glyphLine: CGFloat = 1.5
-    public static let settingsDash: [CGFloat] = [3, 3]
     public static let settingsButton: CGFloat = 140
     /// A switch's track width and the gap round its thumb, and the bar on
     /// the thumb that says it drags.
@@ -299,8 +287,6 @@ public enum Theme {
 
     /// Cards appearing and going: cubic-bezier(0.5, 0, 0, 1), as Twine's.
     public static let fade = Animation.timingCurve(0.5, 0, 0, 1, duration: 0.35)
-    /// A hover highlight sliding from one item to the next.
-    public static let hoverGlide = Animation.timingCurve(0.5, 0, 0, 1, duration: 0.28)
 }
 
 // MARK: - Type
