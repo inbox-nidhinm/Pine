@@ -97,9 +97,8 @@ private struct ColorSection: View {
     }
 
     private func pick() {
-        NSColorSampler().show { picked in
-            guard let picked else { return }
-            DispatchQueue.main.async { color = picked }
+        ColorPicking.shared.pick { picked in
+            if let picked { color = picked }
         }
     }
 

@@ -5,7 +5,7 @@ import Carbon
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
-    private var hotKey: GlobalHotKey!
+    private var hotKey: GlobalHotKey?
     private let recents = RecentColors()
     private let panel = StatusPanel()
 
@@ -38,6 +38,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    // The eyedropper outlives the app that started it, so a pick in progress
+    // is ended rather than left over every screen.
+    func applicationWillTerminate(_ notification: Notification) {
+        ColorPicking.shared.end()
+    }
+
     // Launching the app a second time sends a reopen event to the running
     // instance: that is when the compare window comes up.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -50,8 +56,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func registerHotKey() {
         let keyCode = AppSettings.hotKeyCode
         let modifiers = AppSettings.hotKeyModifiers
+        // Let go of the old one first: while it holds its keys, registering
+        // the same keys again fails without a word.
+        hotKey = nil
         hotKey = GlobalHotKey(keyCode: keyCode, modifiers: modifiers) { [weak self] in
-            self?.pickColor()
+            self?.pickColor(toggles: true)
         }
     }
 
@@ -114,15 +123,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Picking
 
-    private func pickColor() {
-        NSColorSampler().show { [weak self] color in
+    /// Picks a colour and copies it. From the shortcut, `toggles` ends a pick
+    /// already in progress instead, so the shortcut is always a way out.
+    private func pickColor(toggles: Bool = false) {
+        let done: (NSColor?) -> Void = { [weak self] color in
             guard let self, let color else { return }
-            DispatchQueue.main.async {
-                let hex = AppSettings.formatHex(color)
-                self.copyToClipboard(hex)
-                self.recents.add(hex)
-                self.flashStatusIcon()
-            }
+            let hex = AppSettings.formatHex(color)
+            self.copyToClipboard(hex)
+            self.recents.add(hex)
+            self.flashStatusIcon()
+        }
+        if toggles {
+            ColorPicking.shared.toggle(done)
+        } else {
+            ColorPicking.shared.pick(done)
         }
     }
 
