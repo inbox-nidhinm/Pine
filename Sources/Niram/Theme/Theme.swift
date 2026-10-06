@@ -124,6 +124,26 @@ public enum Theme {
     public static let menuPad: CGFloat = 4
     public static let rowGap: CGFloat = 4
 
+    // MARK: Menu bar panel
+
+    /// The panel under the menu bar icon: its width, and its gap below the
+    /// menu bar.
+    public static let menuPanelWidth: CGFloat = 240
+    public static let menuPanelGap: CGFloat = 6
+    /// The side inset of a row's contents inside its hover ground.
+    public static let menuItemPad: CGFloat = 6
+    /// An icon in a menu row, and the tick that marks a row as done.
+    public static let menuIcon: CGFloat = 15
+    /// A recent colour's swatch, and its corner.
+    public static let swatch: CGFloat = 16
+    public static let radiusSwatch: CGFloat = 4
+    /// How long a copied colour shows its tick before the panel goes, and how
+    /// long the menu bar icon shows one after a pick.
+    public static let copiedPause: Double = 0.35
+    public static let copiedFlash: Double = 0.6
+    /// The panel fading in and out.
+    public static let panelFade: Double = 0.12
+
     // MARK: Windows
 
     /// The Compare window, until it is laid out again (step 3 of the redesign).

@@ -13,7 +13,7 @@ enum VersionHistory {
 
     /// How many pushes to GitHub the app has had, this one included. Raise it by
     /// one with every push: the first was v0.0.01, the 100th is v0.1.00.
-    static let pushes = 2
+    static let pushes = 3
 
     static var release: String { String(format: "v0.%d.%02d", pushes / 100, pushes % 100) }
 
@@ -34,8 +34,14 @@ enum VersionHistory {
 
     static let builds: [Build] = [
         .init(date: "6 October 2026", title: "The redesign", features: [
+            "The menu bar icon opens a panel in Niram's own look in place of the system menu: Pick Colour as its main button, with its shortcut; the recent colours as swatches with their hex codes, each copied again with a click (a tick shows as it copies); then Compare Colours, Settings (⌘,) and Quit Niram (⌘Q). Escape or a click anywhere else closes it.",
+            "Recent colours are kept when Niram quits.",
             "The Compare and Settings windows are dark, with no title bar: the window's ground is Twine's canvas grey with its grain, and the traffic lights sit in from the corner as they do in Twine.",
+        ], fixes: [
+            "After two copies close together, the menu bar icon could stay a tick. It now always comes back.",
         ], misc: [
+            "Niram says colour, as Twine does, in place of color.",
+            "The tick the menu bar icon shows after a copy is the designer's.",
             "Niram takes Twine's look: the Flip Design System's colours, sizes and type, with magenta (#E2387F) as its accent, the grain, PP Kyoto for large numbers, and the designer's icons in place of the system's.",
             "Niram needs macOS 14 or later.",
         ]),

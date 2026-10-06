@@ -2,7 +2,7 @@
 
 Niram is a menu bar colour picker (no Dock icon, `LSUIElement`): a global shortcut (⇧⌘C by default, a Carbon hotkey, so no Accessibility permission) picks a colour from the screen with `NSColorSampler` and copies its hex code; the menu bar keeps the last five; a Compare window shows two colours with their WCAG contrast; a Settings window holds the shortcut, hex format and launch at login. Launching it again while it runs opens Compare. Bundle id `com.nidhin.niram`; the GitHub repo is `inbox-nidhinm/Niram` (private).
 
-It is being redesigned the way Flip and Twine were made: `docs/redesign-decisions.md` holds the user's answers. The steps, each ending with screenshots for the user to check before the next: 1 foundations (done), 2 the menu bar dropdown as a custom floating panel, 3 the Compare window, 4 Settings as cards, as Twine's Settings page, 5 an app icon (needs the user's artwork).
+It is being redesigned the way Flip and Twine were made: `docs/redesign-decisions.md` holds the user's answers. The steps, each ending with screenshots for the user to check before the next: 1 foundations (done), 2 the menu bar dropdown as a custom floating panel (done), 3 the Compare window, 4 Settings as cards, as Twine's Settings page, 5 an app icon (needs the user's artwork).
 
 ## Rules
 
@@ -15,7 +15,7 @@ These follow Twine's (`../Twine/CLAUDE.md`), which has the reasons.
 - The user is a designer, not an engineer. Explain in plain terms.
 - No help text in the UI. States are shown, not explained. Put explanations in `.help()` tooltips.
 - Views never write literals: every colour, size and radius comes from `Theme` (`Sources/Niram/Theme/Theme.swift`), the Flip Design System's values as Twine has them, with magenta (#E2387F) as the accent.
-- **Never drive the copy of the app the user is using** (`/Applications/Niram.app`, usually running). For checks, copy `build/Niram.app` to the scratchpad, give the copy the bundle id `com.nidhin.niram.selftest` (`plutil -replace CFBundleIdentifier`, then `codesign --force --sign - --options runtime`), and run its binary directly. Its shortcut will not register while the user's copy holds it. To open a window without clicking, add a temporary environment-variable hook in `AppDelegate.applicationDidFinishLaunching` and remove it before committing; capture windows with `screencapture -o -l<window id>`, the id from `CGWindowListCopyWindowInfo` for the copy's pid (take the largest window: a menu bar app has a small one too).
+- **Never drive the copy of the app the user is using** (`/Applications/Niram.app`, usually running). For checks, copy `build/Niram.app` to the scratchpad, give the copy the bundle id `com.nidhin.niram.selftest` (`plutil -replace CFBundleIdentifier`, then `codesign --force --sign - --options runtime`), and run its binary directly. Its shortcut will not register while the user's copy holds it. To open a window without clicking, add a temporary environment-variable hook in `AppDelegate.applicationDidFinishLaunching` and remove it before committing; capture windows with `screencapture -o -l<window id>`, the id from `CGWindowListCopyWindowInfo` for the copy's pid, of any layer (the menu bar panel is at the pop-up menu level, 101; a menu bar app also has a small window of its own). Clicks: post `NSEvent` mouse events through the window's `sendEvent` from the hook, then an `.applicationDefined` event through `NSApp.postEvent`, and log with `NSLog` (a `print` is lost when the copy is killed). Never click a recent colour in a test: it copies to the user's real clipboard. Give the test copy sample colours with `defaults write com.nidhin.niram.selftest recentColors -array ...` and delete that domain afterwards. The user's menu bar is full: a second Niram icon goes behind the notch, and its panel then opens mid-screen.
 
 ## Building
 
@@ -28,6 +28,7 @@ SwiftPM, no Xcode project. `./make-app.sh` builds release (or `debug`), assemble
 | `Sources/Niram/App` | `main.swift`, `AppDelegate` (status item, menu, windows, picking), `AppSettings` (defaults, shortcut names), `GlobalHotKey`, `ColorUtils` (hex, WCAG luminance and contrast), `VersionHistory` |
 | `Sources/Niram/Theme` | `Theme` and `ThemeFont` (tokens and type), `Grain` (`.grained()`), `IconShape`/`IconView`, `Icons.swift` (generated) |
 | `Sources/Niram/Components` | `Floating.swift`: `floatingPanel()`, `windowGround()`, `PopupCard`, `TrafficLights`, `ChromelessWindow` and `makeChromelessWindow(_:)`, the dark window every Niram window uses |
+| `Sources/Niram/MenuBar` | `StatusPanel` (the borderless, non-activating panel under the status item: placed under the icon's button, kept on screen, the window's own shadow following the card, closed by Escape, a click in another app (a global monitor) or losing the keyboard; ⌘, and ⌘Q through a local key monitor, so posted keys cannot test them), `MenuBarPanel` (Pick Colour as `PrimaryButton`, recent colours, command rows as Twine's menu rows), `RecentColors` (the last five, newest first, in defaults as `recentColors`) |
 | `Sources/Niram/Compare`, `Settings` | The two windows' views |
 
 ## Icons

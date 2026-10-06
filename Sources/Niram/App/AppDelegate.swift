@@ -6,10 +6,8 @@ import Carbon
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private var hotKey: GlobalHotKey!
-    private var pickMenuItem: NSMenuItem!
-    private var recentColorItems: [NSMenuItem] = []
-    private let maxRecent = 5
-    private var recentHexes: [String] = []
+    private let recents = RecentColors()
+    private let panel = StatusPanel()
 
     private let compareModel = CompareModel()
     private var compareWindow: ChromelessWindow?
@@ -23,11 +21,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let button = statusItem.button {
             button.image = Self.menuBarIcon
             button.image?.isTemplate = true
+            button.target = self
+            button.action = #selector(togglePanel)
+            // Opens on the press, as a menu does, not on the release.
+            button.sendAction(on: [.leftMouseDown, .rightMouseDown])
         }
 
-        buildMenu()
         registerHotKey()
-
         NotificationCenter.default.addObserver(
             forName: AppSettings.shortcutChanged, object: nil, queue: .main
         ) { [weak self] _ in
@@ -52,46 +52,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         hotKey = GlobalHotKey(keyCode: keyCode, modifiers: modifiers) { [weak self] in
             self?.pickColor()
         }
-        pickMenuItem?.title = "Pick Color  \(shortcutDescription(keyCode: keyCode, carbonModifiers: modifiers))"
     }
 
-    // MARK: - Menu
+    // MARK: - Panel
 
-    private func buildMenu() {
-        let menu = NSMenu()
-
-        pickMenuItem = NSMenuItem(title: "Pick Color", action: #selector(pickColorAction), keyEquivalent: "")
-        pickMenuItem.target = self
-        menu.addItem(pickMenuItem)
-
-        let compareItem = NSMenuItem(title: "Compare Colors…", action: #selector(compareAction), keyEquivalent: "")
-        compareItem.target = self
-        menu.addItem(compareItem)
-
-        menu.addItem(NSMenuItem.separator())
-
-        let recentHeader = NSMenuItem(title: "Recent", action: nil, keyEquivalent: "")
-        recentHeader.isEnabled = false
-        menu.addItem(recentHeader)
-
-        for _ in 0..<maxRecent {
-            let item = NSMenuItem(title: "", action: #selector(copyRecentAction(_:)), keyEquivalent: "")
-            item.target = self
-            item.isHidden = true
-            recentColorItems.append(item)
-            menu.addItem(item)
+    @objc private func togglePanel() {
+        if panel.isShown {
+            panel.close()
+            return
         }
+        guard let button = statusItem.button else { return }
+        let shortcut = shortcutDescription(keyCode: AppSettings.hotKeyCode, carbonModifiers: AppSettings.hotKeyModifiers)
+        let actions = MenuBarActions(
+            pick: { [weak self] in self?.panel.close(); self?.pickColor() },
+            copy: { [weak self] hex in self?.copyRecent(hex) },
+            compare: { [weak self] in self?.panel.close(); self?.showCompareWindow() },
+            settings: { [weak self] in self?.panel.close(); self?.showSettingsWindow() },
+            quit: { NSApp.terminate(nil) }
+        )
+        panel.show(MenuBarPanel(recents: recents, shortcut: shortcut, actions: actions), under: button, keys: [
+            UInt16(kVK_ANSI_Comma): actions.settings,
+            UInt16(kVK_ANSI_Q): actions.quit,
+        ])
+    }
 
-        menu.addItem(NSMenuItem.separator())
-
-        let settingsItem = NSMenuItem(title: "Settings…", action: #selector(settingsAction), keyEquivalent: ",")
-        settingsItem.target = self
-        menu.addItem(settingsItem)
-
-        let quitItem = NSMenuItem(title: "Quit Niram", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
-        menu.addItem(quitItem)
-
-        statusItem.menu = menu
+    /// Copies a recent colour again, leaving the list as it is so nothing
+    /// moves under the pointer, and closes the panel once its tick has shown.
+    private func copyRecent(_ hex: String) {
+        copyToClipboard(hex)
+        flashStatusIcon()
+        DispatchQueue.main.asyncAfter(deadline: .now() + Theme.copiedPause) { [weak self] in
+            self?.panel.close()
+        }
     }
 
     // MARK: - Windows
@@ -118,19 +110,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settingsWindow?.clearInitialFocus()
     }
 
-    // MARK: - Actions
-
-    @objc private func pickColorAction() {
-        pickColor()
-    }
-
-    @objc private func compareAction() {
-        showCompareWindow()
-    }
-
-    @objc private func settingsAction() {
-        showSettingsWindow()
-    }
+    // MARK: - Picking
 
     private func pickColor() {
         NSColorSampler().show { [weak self] color in
@@ -138,7 +118,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             DispatchQueue.main.async {
                 let hex = AppSettings.formatHex(color)
                 self.copyToClipboard(hex)
-                self.addRecent(hex)
+                self.recents.add(hex)
                 self.flashStatusIcon()
             }
         }
@@ -148,31 +128,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
-    }
-
-    private func addRecent(_ hex: String) {
-        recentHexes.removeAll { $0 == hex }
-        recentHexes.insert(hex, at: 0)
-        if recentHexes.count > maxRecent {
-            recentHexes.removeLast(recentHexes.count - maxRecent)
-        }
-        for (index, item) in recentColorItems.enumerated() {
-            if index < recentHexes.count {
-                let hex = recentHexes[index]
-                item.title = hex
-                item.isHidden = false
-                if let color = NSColor(hexString: hex) {
-                    item.image = swatchImage(for: color)
-                }
-            } else {
-                item.isHidden = true
-            }
-        }
-    }
-
-    @objc private func copyRecentAction(_ sender: NSMenuItem) {
-        copyToClipboard(sender.title)
-        flashStatusIcon()
     }
 
     // MARK: - Icons
@@ -203,23 +158,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return image
     }()
 
-    private func swatchImage(for color: NSColor) -> NSImage {
-        let size = NSSize(width: 14, height: 14)
-        let image = NSImage(size: size)
-        image.lockFocus()
-        color.setFill()
-        NSBezierPath(roundedRect: NSRect(origin: .zero, size: size), xRadius: 3, yRadius: 3).fill()
-        image.unlockFocus()
-        image.isTemplate = false
+    /// The designer's tick, as a template image for the menu bar.
+    private static let copiedIcon: NSImage? = {
+        let renderer = ImageRenderer(content: AnyView(IconView(.check, size: Theme.icon).foregroundStyle(.black)))
+        renderer.scale = 2
+        let image = renderer.nsImage
+        image?.isTemplate = true
         return image
-    }
+    }()
 
     private func flashStatusIcon() {
         guard let button = statusItem.button else { return }
-        let original = button.image
-        button.image = NSImage(systemSymbolName: "checkmark.circle.fill", accessibilityDescription: "Copied")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            button.image = original
+        button.image = Self.copiedIcon
+        // Back to the icon itself rather than whatever showed before, which
+        // after two copies close together was the tick.
+        DispatchQueue.main.asyncAfter(deadline: .now() + Theme.copiedFlash) {
+            button.image = Self.menuBarIcon
         }
     }
 }
