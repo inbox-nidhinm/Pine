@@ -146,8 +146,30 @@ public enum Theme {
 
     // MARK: Windows
 
-    /// The Compare window, until it is laid out again (step 3 of the redesign).
-    public static let compareWindow = CGSize(width: 520, height: 340)
+    // MARK: Compare
+
+    /// The Compare window: the preview runs under the whole of it, with the
+    /// colours panel floating over its left side.
+    public static let compareWindow = CGSize(width: 680, height: 420)
+    /// The panel's width, as Twine's layers panel.
+    public static let panelWidth: CGFloat = 232
+    /// The panel's top row, which holds the traffic lights and the swap button.
+    public static let compareHeader: CGFloat = 40
+    /// The small icon in a square glyph button.
+    public static let buttonIcon: CGFloat = 15
+    /// Between a colour's name and its row, and between the two colours.
+    public static let labelGap: CGFloat = 6
+    public static let sectionGap: CGFloat = 12
+    /// The contrast ratio's figures, and the ": 1" after them.
+    public static let ratioSize: CGFloat = 56
+    public static let ratioUnit: CGFloat = 22
+    /// The preview's samples: large "Aa" in the display face, then WCAG's
+    /// large text (18 pt) and body text (12 pt) under it.
+    public static let previewLarge: CGFloat = 120
+    public static let previewLargeText: CGFloat = 18
+    public static let previewBodyText: CGFloat = 12
+    /// How long the copy button shows its tick.
+    public static let copiedShown: Double = 1
     /// The Settings window's width, until it is laid out again (step 4).
     public static let settingsWindowWidth: CGFloat = 400
     /// How far the traffic lights sit in from the window's corner.

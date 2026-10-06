@@ -162,11 +162,14 @@ final class ChromelessWindow: NSWindow {
     }
 }
 
-/// A dark, chromeless window holding a SwiftUI view, sized to it.
+/// A dark, chromeless window holding a SwiftUI view, sized to the view or to
+/// `size`. A view that runs up under the hidden title bar passes its size:
+/// left to fit, the window counts the title bar's height on top of it.
 @MainActor
-func makeChromelessWindow<Content: View>(_ root: Content) -> ChromelessWindow {
+func makeChromelessWindow<Content: View>(_ root: Content, size: CGSize? = nil) -> ChromelessWindow {
     let hosting = NSHostingView(rootView: root)
-    let window = ChromelessWindow(contentRect: NSRect(origin: .zero, size: hosting.fittingSize),
+    if size != nil { hosting.sizingOptions = [] }
+    let window = ChromelessWindow(contentRect: NSRect(origin: .zero, size: size ?? hosting.fittingSize),
                                   styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
                                   backing: .buffered, defer: false)
     window.contentView = hosting

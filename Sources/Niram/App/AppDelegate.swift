@@ -28,6 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         registerHotKey()
+
         NotificationCenter.default.addObserver(
             forName: AppSettings.shortcutChanged, object: nil, queue: .main
         ) { [weak self] _ in
@@ -90,7 +91,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func showCompareWindow() {
         if compareWindow == nil {
-            let window = makeChromelessWindow(CompareView(model: compareModel))
+            let window = makeChromelessWindow(CompareView(model: compareModel), size: Theme.compareWindow)
             window.title = "Niram"
             compareWindow = window
         }

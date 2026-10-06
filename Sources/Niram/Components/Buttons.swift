@@ -33,3 +33,32 @@ struct PrimaryButton: View {
         .onHover { hovering = $0 }
     }
 }
+
+/// A small square glyph button for panel headers and rows, as Twine's: it
+/// lights its ground only under the pointer, and is dimmed only when it
+/// cannot be used.
+struct IconButton: View {
+    let icon: Icon
+    var help: String
+    var size: CGFloat = Theme.control
+    var iconBox: CGFloat = Theme.buttonIcon
+    let action: () -> Void
+
+    @State private var hovering = false
+    @Environment(\.isEnabled) private var isEnabled
+
+    var body: some View {
+        Button(action: action) {
+            IconView(icon, size: iconBox)
+                .foregroundStyle(!isEnabled ? Theme.textTertiary : hovering ? Theme.textPrimary : Theme.textSecondary)
+                .opacity(isEnabled ? 1 : 0.4)
+                .frame(width: size, height: size)
+                .background(RoundedRectangle(cornerRadius: Theme.radiusControl)
+                    .fill(hovering && isEnabled ? Theme.panelRaised : .clear))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+        .help(help)
+    }
+}

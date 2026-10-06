@@ -24,3 +24,25 @@ import AppKit
         #expect(abs(NSColor.contrastRatio(color, color) - 1) < 0.0001)
     }
 }
+
+@Suite struct TypedHexTests {
+    @Test func shortFormsGrowAsInFigma() {
+        #expect(NSColor(typedHex: "0")?.hexRRGGBB == "000000")
+        #expect(NSColor(typedHex: "1a")?.hexRRGGBB == "1A1A1A")
+        #expect(NSColor(typedHex: "#abc")?.hexRRGGBB == "AABBCC")
+        #expect(NSColor(typedHex: " e2387f ")?.hexRRGGBB == "E2387F")
+    }
+
+    @Test func nonsenseIsRefused() {
+        #expect(NSColor(typedHex: "") == nil)
+        #expect(NSColor(typedHex: "#zz") == nil)
+        #expect(NSColor(typedHex: "12345") == nil)
+    }
+
+    @Test func aRatioJustShortOfALevelNeverReadsAsReachingIt() {
+        #expect(shownRatio(4.4999) == "4.49")
+        #expect(shownRatio(21) == "21.00")
+        #expect(!ContrastLevel.aa.passes(4.4999))
+        #expect(ContrastLevel.aaLarge.passes(3))
+    }
+}
