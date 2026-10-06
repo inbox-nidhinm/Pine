@@ -17,10 +17,14 @@ final class CompareModel {
 /// The Compare window as the user drew it in Figma (Twine file, node
 /// 140:2493): one tall card, the first colour on top, the contrast in the
 /// middle, the second colour at the bottom. Drawn at half the design's size
-/// (`Theme.compareScale`). The design shows the card at rest; the eyedropper, copy and swap buttons are ours and show only under
-/// the pointer, and a hex code is typed by clicking it.
+/// (`Theme.compareScale`). The design shows the card at rest; the eyedropper,
+/// copy and swap buttons are ours and show only under the pointer, and a hex
+/// code is typed by clicking it. The close button, at the top in the middle
+/// where the round corners leave room, is ours too and always shows (the
+/// user's request, 6 October 2026: the card has no traffic lights).
 struct CompareView: View {
     let model: CompareModel
+    let close: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -31,6 +35,10 @@ struct CompareView: View {
                          corners: .init(topLeading: Theme.radiusCompareColor, topTrailing: Theme.radiusCompareColor))
         }
         .background(Theme.panelHover)
+        .overlay(alignment: .top) {
+            OnColorButton(icon: .close, ink: ink(on: model.first), help: "Close (Esc)", action: close)
+                .padding(.top, Theme.compareCloseTop)
+        }
         .clipShape(RoundedRectangle(cornerRadius: Theme.radiusCompareCard, style: .continuous))
         .frame(width: Theme.compareCard.width, height: Theme.compareCard.height)
         .ignoresSafeArea()
@@ -49,10 +57,7 @@ private struct ColorSection: View {
     @State private var copied = false
     @FocusState private var typing: Bool
 
-    /// Dark type on a light colour, white on a dark one.
-    private var ink: Color {
-        color.relativeLuminance > Theme.lightColor ? Theme.textOnLight : Theme.textPrimary
-    }
+    private var ink: Color { Niram.ink(on: color) }
 
     var body: some View {
         ZStack {
@@ -146,6 +151,11 @@ private struct ContrastSection: View {
         .contentShape(Rectangle())
         .onHover { over in withAnimation(Theme.hoverFade) { hovering = over } }
     }
+}
+
+/// Dark type on a light colour, white on a dark one.
+func ink(on color: NSColor) -> Color {
+    color.relativeLuminance > Theme.lightColor ? Theme.textOnLight : Theme.textPrimary
 }
 
 private struct LevelPill: View {

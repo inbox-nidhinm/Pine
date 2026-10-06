@@ -100,7 +100,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func showCompareWindow() {
         if compareWindow == nil {
-            let window = makeCardWindow(CompareView(model: compareModel), size: Theme.compareCard)
+            let window = makeCardWindow(CompareView(model: compareModel) { [weak self] in self?.compareWindow?.close() }, size: Theme.compareCard)
             window.title = "Niram"
             compareWindow = window
         }

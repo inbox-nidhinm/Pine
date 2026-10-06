@@ -186,6 +186,8 @@ public enum Theme {
     /// belong to, their box and their icon.
     public static let hoverGap = compare(12)
     public static let hoverButton: CGFloat = 20
+    /// The close button's gap from the card's top.
+    public static let compareCloseTop = compare(32)
     public static let hoverIcon: CGFloat = 13
     /// The small icon in a square glyph button.
     public static let buttonIcon: CGFloat = 15
