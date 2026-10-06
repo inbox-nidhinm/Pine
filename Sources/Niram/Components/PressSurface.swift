@@ -72,18 +72,29 @@ struct PressSurface: NSViewRepresentable {
             let startMouse = NSEvent.mouseLocation
             let startOrigin = window.frame.origin
             var dragging = false
-            // Follows the press to its end here, as AppKit's own controls do.
-            while let next = window.nextEvent(matching: [.leftMouseDragged, .leftMouseUp]) {
+            // Follows the press to its end here, as AppKit's own controls do,
+            // but never waits for ever: when no event comes, the button's real
+            // state decides, so a release that went elsewhere cannot hold the
+            // app in this loop.
+            while true {
+                guard let next = window.nextEvent(matching: [.leftMouseDragged, .leftMouseUp],
+                                                  until: Date(timeIntervalSinceNow: Theme.pressPoll),
+                                                  inMode: .eventTracking, dequeue: true) else {
+                    if NSEvent.pressedMouseButtons & 1 == 0 { break }
+                    continue
+                }
+                if next.type == .leftMouseUp { break }
                 let mouse = NSEvent.mouseLocation
                 let moved = CGPoint(x: mouse.x - startMouse.x, y: mouse.y - startMouse.y)
-                if next.type == .leftMouseUp {
-                    if !dragging { onClick?() }
-                    return
-                }
                 if !dragging, hypot(moved.x, moved.y) >= Theme.dragStart { dragging = true }
                 if dragging {
                     window.setFrameOrigin(CGPoint(x: startOrigin.x + moved.x, y: startOrigin.y + moved.y))
                 }
+            }
+            // A click acts once the press is over, outside this event: a pick
+            // started from inside it opened the eyedropper mid-click.
+            if !dragging, let onClick {
+                DispatchQueue.main.async { onClick() }
             }
         }
 

@@ -214,6 +214,9 @@ public enum Theme {
     public static let hoverButton: CGFloat = 20
     /// How far a press must move before it drags the card rather than clicks.
     public static let dragStart: CGFloat = 3
+    /// While a press is held on the card, how often it checks that the
+    /// button is still down when no event comes.
+    public static let pressPoll: TimeInterval = 0.1
     /// macOS's close button: its own size (14 points, a 12 point dot), and the
     /// size the card draws it, scaled so the dot is 14 points (the user's
     /// choice on 6 October 2026, "a bit bigger", between macOS's 12 and the

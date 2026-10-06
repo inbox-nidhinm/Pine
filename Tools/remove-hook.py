@@ -21,5 +21,9 @@ if len(starts) != 1 or len(ends) != 1 or ends[0] < starts[0]:
     print(f"refusing: {len(starts)} start and {len(ends)} end markers")
     sys.exit(1)
 del lines[starts[0]:ends[0] + 1]
+# The hook went in with a blank line after it: take one away, so the file is
+# as it was and a later hook can find the same lines again.
+if 0 < starts[0] < len(lines) and lines[starts[0]] == "" and lines[starts[0] - 1] == "":
+    del lines[starts[0]]
 path.write_text("\n".join(lines))
 print(f"removed lines {starts[0] + 1} to {ends[0] + 1}")
