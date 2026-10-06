@@ -21,7 +21,6 @@ struct MenuBarPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             PrimaryButton(title: "Pick Colour", icon: .eyedropper, shortcut: shortcut, action: actions.pick)
-                .help("Pick a colour anywhere on screen and copy its hex code. The shortcut works from any app.")
 
             if !recents.hexes.isEmpty {
                 Text("Recent")
@@ -84,7 +83,6 @@ private struct RecentColorRow: View {
         }
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
-        .help("Copy \(hex)")
     }
 }
 

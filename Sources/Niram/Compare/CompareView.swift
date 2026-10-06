@@ -92,7 +92,6 @@ private struct RecentColumn: View {
                         .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
-                .help("\(hex): click to put it in the top colour, Option-click for the bottom one")
             }
         }
         .padding(Theme.swatchColumnPad)
@@ -124,7 +123,7 @@ private struct ColorSection: View {
                 .overlay(UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
                     .strokeBorder(Theme.compareEdge, lineWidth: Theme.hairline))
             // A click on the colour picks a new one; a drag moves the card.
-            PressSurface(corners: corners, help: "Click to pick a colour from anywhere on screen. Drag to move.",
+            PressSurface(corners: corners,
                          onClick: pick,
                          onHover: { over in withAnimation(Theme.copyFade) { hovering = over } })
 
@@ -138,10 +137,9 @@ private struct ColorSection: View {
                     .frame(width: Theme.compareHexField)
                     .focused($typing)
                     .onSubmit(commit)
-                    .help("Type a hex code. Short forms work: 0, 1a and abc are 000000, 1A1A1A and AABBCC.")
                 // Only while the pointer is over this colour (the user's
                 // request), and while its tick shows after a copy.
-                OnColorButton(icon: copied ? .check : .copy, ink: ink, help: "Copy this colour's hex code", action: copy)
+                OnColorButton(icon: copied ? .check : .copy, ink: ink, action: copy)
                     .opacity(copied ? 1 : hovering ? Theme.quietButton : 0)
                     .allowsHitTesting(hovering || copied)
             }
@@ -254,7 +252,6 @@ private struct LevelPill: View {
 private struct OnColorButton: View {
     let icon: Icon
     let ink: Color
-    let help: String
     let action: () -> Void
 
     @State private var hovering = false
@@ -270,6 +267,5 @@ private struct OnColorButton: View {
         }
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
-        .help(help)
     }
 }

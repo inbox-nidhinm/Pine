@@ -39,7 +39,6 @@ struct PrimaryButton: View {
 /// cannot be used.
 struct IconButton: View {
     let icon: Icon
-    var help: String
     var size: CGFloat = Theme.control
     var iconBox: CGFloat = Theme.buttonIcon
     let action: () -> Void
@@ -59,7 +58,6 @@ struct IconButton: View {
         }
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
-        .help(help)
     }
 }
 

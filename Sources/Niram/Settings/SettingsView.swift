@@ -61,8 +61,7 @@ struct SettingsView: View {
 
     private var picking: some View {
         card("Picking") {
-            row(.eyedropper, "Pick colour",
-                help: "The shortcut that picks a colour from anywhere on screen and copies its hex code. Click it and press a new one: it needs ⌘, ⌥ or ⌃. Escape keeps the old one.") {
+            row(.eyedropper, "Pick colour") {
                 ShortcutField()
             }
         }
@@ -70,20 +69,18 @@ struct SettingsView: View {
 
     private var hexCodes: some View {
         card("Hex Codes") {
-            row(tile: AnyView(Text("A").font(ThemeFont.hex)), "Uppercase",
-                help: "Copy hex codes in capitals (#FFAA00) rather than small letters (#ffaa00).") {
+            row(tile: AnyView(Text("A").font(ThemeFont.hex)), "Uppercase") {
                 PillToggle(isOn: uppercaseHex) { uppercaseHex.toggle() }
             }
             dashes
-            row(tile: AnyView(Text("#").font(ThemeFont.hex)), "Include #",
-                help: "Start copied hex codes with #.") {
+            row(tile: AnyView(Text("#").font(ThemeFont.hex)), "Include #") {
                 PillToggle(isOn: includeHash) { includeHash.toggle() }
             }
             dashes
             row(tile: AnyView(RoundedRectangle(cornerRadius: Theme.radiusSwatch)
                     .fill(Theme.accent)
                     .frame(width: Theme.swatch, height: Theme.swatch)),
-                "Copied as", help: "How a colour's hex code is copied with these settings.") {
+                "Copied as") {
                 Text(AppSettings.formatHex(Self.sample, uppercase: uppercaseHex, hash: includeHash))
                     .font(ThemeFont.hex)
                     .foregroundStyle(Theme.textSecondary)
@@ -93,8 +90,7 @@ struct SettingsView: View {
 
     private var general: some View {
         card("General") {
-            row(tile: AnyView(AppearanceGlyph()), "Appearance",
-                help: "Light or dark for the Compare card. System follows your Mac.") {
+            row(tile: AnyView(AppearanceGlyph()), "Appearance") {
                 SegmentRow(options: AppSettings.Appearance.allCases.map { ($0.rawValue, $0.name) },
                            chosen: appearance) { picked in
                     appearance = picked
@@ -102,7 +98,7 @@ struct SettingsView: View {
                 }
             }
             dashes
-            row(.power, "Launch at login", help: "Start Niram when you log in, so the shortcut is always ready.") {
+            row(.power, "Launch at login") {
                 PillToggle(isOn: launchAtLogin) { setLaunchAtLogin(!launchAtLogin) }
             }
         }
@@ -152,14 +148,13 @@ struct SettingsView: View {
             .frame(height: Theme.hairline)
     }
 
-    /// An icon on its tile, a name, and the control at the right. The
-    /// explanation is the row's tooltip.
-    private func row<Control: View>(_ icon: Icon, _ label: String, help: String,
+    /// An icon on its tile, a name, and the control at the right.
+    private func row<Control: View>(_ icon: Icon, _ label: String,
                                     @ViewBuilder _ control: () -> Control) -> some View {
-        row(tile: AnyView(IconView(icon, size: Theme.settingsTileIcon)), label, help: help, control)
+        row(tile: AnyView(IconView(icon, size: Theme.settingsTileIcon)), label, control)
     }
 
-    private func row<Control: View>(tile: AnyView, _ label: String, help: String,
+    private func row<Control: View>(tile: AnyView, _ label: String,
                                     @ViewBuilder _ control: () -> Control) -> some View {
         HStack(spacing: Theme.panelPad) {
             tile
@@ -174,7 +169,6 @@ struct SettingsView: View {
             control()
         }
         .frame(height: Theme.settingsRow)
-        .help(help)
     }
 
     /// The room a row leaves above and below its tile.

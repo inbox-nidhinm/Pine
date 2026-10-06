@@ -13,7 +13,7 @@ enum VersionHistory {
 
     /// How many pushes to GitHub the app has had, this one included. Raise it by
     /// one with every push: the first was v0.0.01, the 100th is v0.1.00.
-    static let pushes = 17
+    static let pushes = 18
 
     static var release: String { String(format: "v0.%d.%02d", pushes / 100, pushes % 100) }
 
@@ -40,11 +40,12 @@ enum VersionHistory {
             "The Compare card follows your Mac's light or dark mode, as drawn in Figma: in light mode its middle is a light grey with dark figures. Settings has an Appearance choice under General: System (the default), Light or Dark.",
             "Your recent colours stand in a column of round swatches beside the Compare card, newest at the top. Click one to put it in the top colour, Option-click for the bottom one. Niram now keeps your last nine colours (the menu bar panel shows the latest five), and colours picked on the card join them.",
             "Opening Settings while the Compare card is open puts the card away; closing Settings brings it back. If the card was not open, it stays closed.",
-            "The contrast ratio is shown large, in PP Kyoto, with a pill for each of AA, AA Large and AAA, outlined when reached and dimmed when not. Hover over one for the ratio it needs.",
+            "The contrast ratio is shown large, in PP Kyoto, with a pill for each of AA, AA Large and AAA, outlined when reached and dimmed when not.",
             "Hex codes can be typed in Figma's short forms: 0 is 000000, 1a is 1A1A1A, abc is AABBCC.",
-            "Settings is laid out as Twine's Settings page: its title under the traffic lights, then cards of rows, each with its icon: Picking (the shortcut, clicked to record a new one), General (launch at login) and Hex Codes (uppercase, include #, and the hex code a colour would be copied as with those choices). Switches are Twine's own. What each setting does is in its tooltip.",
+            "Settings is laid out as Twine's Settings page: its title under the traffic lights, then cards of rows, each with its icon: Picking (the shortcut, clicked to record a new one), General (launch at login) and Hex Codes (uppercase, include #, and the hex code a colour would be copied as with those choices). Switches are Twine's own.",
             "Version History, at the foot of Settings beside the build number, lists every build of Niram and what it changed.",
             "Settings has no grain: its page and cards are flat.",
+            "Nothing in Niram shows a hint when the pointer rests on it.",
             "Every window is dark, with no title bar: the window's ground is Twine's canvas grey with its grain, and the traffic lights sit in from the corner as they do in Twine.",
         ], fixes: [
             "After a pick, the eyedropper could be left behind, invisible, over every screen connected at the time: nothing there took a click (not even the menu bar or the Dock) though the pointer and hover still worked. The eyedropper belongs to macOS and outlives the app that asked for it, and Niram let go of each one as it started and could start a second over the first. Now only one runs at a time and Niram holds it until it answers; pressing the pick shortcut while picking ends the pick, so the shortcut is always a way out; one left on screen from before is cleared when you next pick; and quitting Niram ends one in progress.",

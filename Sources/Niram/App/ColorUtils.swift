@@ -77,14 +77,6 @@ enum ContrastLevel: CaseIterable {
         }
     }
 
-    var help: String {
-        switch self {
-        case .aa: "WCAG AA for body text: a contrast of at least 4.5 to 1."
-        case .aaLarge: "WCAG AA for large text (18 pt, or 14 pt bold) and for icons and controls: at least 3 to 1."
-        case .aaa: "WCAG AAA for body text: at least 7 to 1."
-        }
-    }
-
     func passes(_ ratio: CGFloat) -> Bool { ratio >= needs }
 }
 

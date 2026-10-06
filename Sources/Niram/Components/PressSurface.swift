@@ -13,7 +13,6 @@ import AppKit
 /// clear let clicks through to what is behind the window.
 struct PressSurface: NSViewRepresentable {
     var corners: RectangleCornerRadii
-    var help: String?
     var onClick: (() -> Void)?
     /// Whether the pointer is over the shape, wherever it is: over what lies
     /// on top of the surface (a code, a button) too.
@@ -25,7 +24,6 @@ struct PressSurface: NSViewRepresentable {
         view.corners = corners
         view.onClick = onClick
         view.onHover = onHover
-        view.toolTip = help
     }
 
     final class Surface: NSView {
