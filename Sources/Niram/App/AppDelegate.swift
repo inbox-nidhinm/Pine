@@ -15,6 +15,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppSettings.registerDefaults()
+        // Before anything can pick: it watches for a stuck eyedropper from its
+        // own thread for as long as Niram runs.
+        SamplerWatchdog.start(watching: ColorPicking.shared.state)
         NSApp.setActivationPolicy(.accessory) // no Dock icon, no app switcher entry
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)

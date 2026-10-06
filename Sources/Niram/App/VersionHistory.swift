@@ -13,7 +13,7 @@ enum VersionHistory {
 
     /// How many pushes to GitHub the app has had, this one included. Raise it by
     /// one with every push: the first was v0.0.01, the 100th is v0.1.00.
-    static let pushes = 8
+    static let pushes = 20
 
     static var release: String { String(format: "v0.%d.%02d", pushes / 100, pushes % 100) }
 
@@ -43,6 +43,7 @@ enum VersionHistory {
             "Version History, at the foot of Settings beside the build number, lists every build of Niram and what it changed.",
             "Every window is dark, with no title bar: the window's ground is Twine's canvas grey with its grain, and the traffic lights sit in from the corner as they do in Twine.",
         ], fixes: [
+            "Picking several colours in a row could still leave the screen taking no clicks at all, with no way out but forcing the Mac off. Niram now watches the eyedropper from a thread of its own, twice a second, and clears it whatever state Niram is in, even with its keys and clicks not getting through: when it covers the screen with no magnifier, when it is still up two seconds after Niram's pick ended, or when a pick has run for two minutes. A new pick waits for the last eyedropper to leave the screen rather than ending it and asking again at once, which left picks that never appeared, and a pick that silently dies is let go of so the next one works. What happens is written to ~/Library/Logs/Niram/eyedropper.log.",
             "After a pick, the eyedropper could be left behind, invisible, over every screen connected at the time: nothing there took a click (not even the menu bar or the Dock) though the pointer and hover still worked. The eyedropper belongs to macOS and outlives the app that asked for it, and Niram let go of each one as it started and could start a second over the first. Now only one runs at a time and Niram holds it until it answers; pressing the pick shortcut while picking ends the pick, so the shortcut is always a way out; one left on screen from before is cleared when you next pick; and quitting Niram ends one in progress.",
             "Changing the shortcut could leave it not working when the new keys were the same as the old.",
             "Turning on launch at login now shows what macOS did: if it refuses, the switch goes back off.",
