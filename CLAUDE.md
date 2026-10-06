@@ -45,7 +45,7 @@ The eyedropper is macOS's, not Niram's: `NSColorSampler` asks the ColorSampler s
 
 ## Icons
 
-The app icon is the designer's artwork, `Artwork/AppIcon.png` (a full-bleed square, from `~/Desktop/06-10/Icon.png`), set into the macOS icon grid by `swift Tools/make-app-icon.swift Artwork/AppIcon.png Resources/AppIcon.icns` (Twine's tool). The menu bar icon is the designer's `Resources/menu-icon.svg`, drawn by macOS from the SVG as a template image. `make-app.sh` copies both into the app.
+The app icon is the designer's artwork, `Artwork/AppIcon.png` (a full-bleed square, from `~/Desktop/06-10/Icon2.png`, the yellow one, which replaced `Icon.png` on 7 October 2026), set into the macOS icon grid by `swift Tools/make-app-icon.swift Artwork/AppIcon.png Resources/AppIcon.icns` (Twine's tool). The menu bar icon is the designer's `Resources/menu-icon.svg`, drawn by macOS from the SVG as a template image. `make-app.sh` copies both into the app.
 
 
 SVGs in `Icons/`, 24x24, stroked, `M L H V C Z` only, drawn at `Theme.iconStroke`. All but `copy.svg` are the designer's, copied from Twine's set; `copy.svg` is a placeholder of ours. Regenerate after editing:
