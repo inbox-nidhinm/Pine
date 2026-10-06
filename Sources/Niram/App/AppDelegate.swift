@@ -32,27 +32,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         registerHotKey()
 
-        NotificationCenter.default.post(name: AppSettings.appearanceChanged, object: nil)
-                }
-                after(2) { log("after Light"); exit(0) }
-            } else if let w = compareWindow {
-                after(1) {
-                    log("before")
-                    // The second swatch: column x, first swatch centre + one step.
-                    let x = Theme.compareMargin + Theme.compareCard.width + Theme.swatchGap + Theme.swatchColumn / 2
-                    let top = (Theme.compareWindow.height - (9 * Theme.recentSwatch + 8 * Theme.recentSwatchGap + 2 * Theme.swatchColumnPad)) / 2
-                    let y = top + Theme.swatchColumnPad + Theme.recentSwatch * 1.5 + Theme.recentSwatchGap
-                    let p = NSPoint(x: x, y: w.frame.height - y)
-                    for type in [NSEvent.EventType.leftMouseDown, .leftMouseUp] {
-                        w.sendEvent(NSEvent.mouseEvent(with: type, location: p, modifierFlags: [], timestamp: 0, windowNumber: w.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: 1)!)
-                    }
-                    NSApp.postEvent(NSEvent.otherEvent(with: .applicationDefined, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, subtype: 0, data1: 0, data2: 0)!, atStart: false)
-                }
-                after(2) { log("after clicking the second swatch"); exit(0) }
-            }
-        default: break
-        }
-
         NotificationCenter.default.addObserver(
             forName: AppSettings.shortcutChanged, object: nil, queue: .main
         ) { [weak self] _ in
