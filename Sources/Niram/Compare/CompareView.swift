@@ -16,12 +16,13 @@ final class CompareModel {
 
 /// The Compare window as the user drew it in Figma (Twine file, node
 /// 140:2493): one tall card, the first colour on top, the contrast in the
-/// middle, the second colour at the bottom. Drawn at half the design's size
-/// (`Theme.compareScale`). The design shows the card at rest; the eyedropper,
-/// copy and swap buttons are ours and show only under the pointer, and a hex
-/// code is typed by clicking it. The close button, at the top in the middle
-/// where the round corners leave room, is ours too and always shows (the
-/// user's request, 6 October 2026: the card has no traffic lights).
+/// middle, the second colour at the bottom, drawn at half the design's size
+/// (`Theme.compareScale`). The design shows the card at rest; the rest is
+/// ours, as the user asked on 6 October 2026: a click anywhere on a colour
+/// picks a new one, a click on its code types one, the copy button sits after
+/// the code at half strength, the swap button shows under the levels while
+/// the pointer is over the middle, and the close button is macOS's own red
+/// traffic light in the top-left corner, inside the curve.
 struct CompareView: View {
     let model: CompareModel
     let close: () -> Void
@@ -35,9 +36,10 @@ struct CompareView: View {
                          corners: .init(topLeading: Theme.radiusCompareColor, topTrailing: Theme.radiusCompareColor))
         }
         .background(Theme.panelHover)
-        .overlay(alignment: .top) {
-            OnColorButton(icon: .close, ink: ink(on: model.first), help: "Close (Esc)", action: close)
-                .padding(.top, Theme.compareCloseTop)
+        .overlay(alignment: .topLeading) {
+            TrafficLightClose(action: close)
+                .frame(width: Theme.trafficLight, height: Theme.trafficLight)
+                .padding(Theme.compareCloseInset)
         }
         .clipShape(RoundedRectangle(cornerRadius: Theme.radiusCompareCard, style: .continuous))
         .frame(width: Theme.compareCard.width, height: Theme.compareCard.height)
@@ -45,15 +47,15 @@ struct CompareView: View {
     }
 }
 
-/// One colour filling its third of the card, its hex code in the middle. The
-/// code is a field; the eyedropper and copy buttons show under it while the
-/// pointer is over the colour.
+/// One colour filling its third of the card, its hex code in the middle. A
+/// click anywhere on the colour picks a new one from the screen; a click on
+/// the code types one. The copy button sits after the code at half strength,
+/// with an empty box of its width before the code so the code stays centred.
 private struct ColorSection: View {
     @Binding var color: NSColor
     let corners: RectangleCornerRadii
 
     @State private var typed = ""
-    @State private var hovering = false
     @State private var copied = false
     @FocusState private var typing: Bool
 
@@ -61,30 +63,32 @@ private struct ColorSection: View {
 
     var body: some View {
         ZStack {
-            UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
-                .fill(Color(nsColor: color))
+            // The whole colour is the eyedropper: a real button, so a click
+            // always lands (a tap gesture can miss posted clicks).
+            Button(action: pick) {
+                UnevenRoundedRectangle(cornerRadii: corners, style: .continuous)
+                    .fill(Color(nsColor: color))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help("Click to pick a colour from anywhere on screen")
 
-            TextField("", text: $typed)
-                .textFieldStyle(.plain)
-                .font(.system(size: Theme.compareHex, weight: .semibold))
-                .multilineTextAlignment(.center)
-                .foregroundStyle(ink)
-                .frame(width: Theme.compareHexField)
-                .focused($typing)
-                .onSubmit(commit)
-                .help("Type a hex code. Short forms work: 0, 1a and abc are 000000, 1A1A1A and AABBCC.")
-                .overlay(alignment: .top) {
-                    HStack(spacing: Theme.rowGap) {
-                        OnColorButton(icon: .eyedropper, ink: ink, help: "Pick this colour from anywhere on screen", action: pick)
-                        OnColorButton(icon: copied ? .check : .copy, ink: ink, help: "Copy this colour's hex code", action: copy)
-                    }
-                    .alignmentGuide(.top) { $0[.top] - Theme.compareHex - Theme.hoverGap }
-                    .opacity(hovering || copied ? 1 : 0)
-                    .allowsHitTesting(hovering)
-                }
+            HStack(spacing: Theme.rowGap) {
+                Color.clear.frame(width: Theme.hoverButton, height: Theme.hoverButton)
+                TextField("", text: $typed)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: Theme.compareHex, weight: .semibold))
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(ink)
+                    .frame(width: Theme.compareHexField)
+                    .focused($typing)
+                    .onSubmit(commit)
+                    .help("Type a hex code. Short forms work: 0, 1a and abc are 000000, 1A1A1A and AABBCC.")
+                OnColorButton(icon: copied ? .check : .copy, ink: ink, help: "Copy this colour's hex code", action: copy)
+                    .opacity(copied ? 1 : Theme.quietButton)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onHover { over in withAnimation(Theme.hoverFade) { hovering = over } }
         .onAppear { typed = Self.shown(color) }
         .onChange(of: color) { _, newValue in typed = Self.shown(newValue) }
         .onChange(of: typing) { _, isTyping in if !isTyping { commit() } }

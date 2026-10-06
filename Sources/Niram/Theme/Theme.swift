@@ -169,7 +169,7 @@ public enum Theme {
     public static let lightColor: CGFloat = 0.4
     /// A colour's hex code, and how wide its field is.
     public static let compareHex = compareType(20)
-    public static let compareHexField = compare(120)
+    public static let compareHexField = compare(84)
     /// The contrast ratio's figures in the display face, and the ": 1".
     public static let ratioSize = compareType(64)
     public static let ratioUnit = compareType(32)
@@ -182,12 +182,16 @@ public enum Theme {
     /// the type's own size, since the type stops shrinking at `smallestType`.
     public static let pillPadH = pillText * 10 / 13 * 0.8
     public static let pillPadV = pillText * 4 / 13
-    /// The buttons that show under the pointer: their gap from what they
-    /// belong to, their box and their icon.
+    /// The card's small buttons (copy, swap): the swap button's gap under the
+    /// levels, and their box and icon.
     public static let hoverGap = compare(12)
     public static let hoverButton: CGFloat = 20
-    /// The close button's gap from the card's top.
-    public static let compareCloseTop = compare(32)
+    /// macOS's close button: its size, as the traffic lights draw it, and
+    /// how far in from the card's corner it sits, inside the corner's curve.
+    public static let trafficLight: CGFloat = 14
+    public static let compareCloseInset = compare(36)
+    /// The copy button beside a hex code, at half strength so it stays quiet.
+    public static let quietButton: Double = 0.5
     public static let hoverIcon: CGFloat = 13
     /// The small icon in a square glyph button.
     public static let buttonIcon: CGFloat = 15
