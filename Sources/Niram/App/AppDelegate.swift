@@ -192,14 +192,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Picking
 
-    /// Picks a colour and copies it. From the shortcut, `toggles` ends a pick
-    /// already in progress instead, so the shortcut is always a way out.
+    /// Picks a colour, copies it and puts it in the Compare card, alternating
+    /// top and bottom, whether the card is open or not. From the shortcut,
+    /// `toggles` ends a pick already in progress instead, so the shortcut is
+    /// always a way out.
     private func pickColor(toggles: Bool = false) {
         let done: (NSColor?) -> Void = { [weak self] color in
             guard let self, let color else { return }
             let hex = AppSettings.formatHex(color)
             self.copyToClipboard(hex)
             self.recents.add(hex)
+            self.compareModel.take(color)
             self.flashStatusIcon()
         }
         if toggles {

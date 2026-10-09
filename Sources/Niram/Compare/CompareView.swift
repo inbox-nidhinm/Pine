@@ -1,13 +1,51 @@
 import SwiftUI
 import AppKit
 
-/// The two colours being compared, top and bottom of the card.
+/// The two colours being compared, top and bottom of the card, kept in the
+/// defaults so they outlast a restart. A colour picked away from the card
+/// (the shortcut, the menu bar panel) goes in through `take`, into whichever
+/// of the two was changed longer ago, so picks alternate; a change made on
+/// the card itself counts too (the user's choice, 10 October 2026).
 @MainActor @Observable
 final class CompareModel {
-    var first: NSColor = NSColor(hexString: "#FFFFFF") ?? .white
-    var second: NSColor = NSColor(hexString: "#293029") ?? .black
+    enum Slot: String { case first, second }
+
+    var first: NSColor { didSet { changed(.first, from: oldValue) } }
+    var second: NSColor { didSet { changed(.second, from: oldValue) } }
+    /// Where the next colour picked away from the card goes.
+    private(set) var next: Slot
+
+    @ObservationIgnored private let defaults: UserDefaults
+    private static let colorsKey = "compareColors"
+    private static let nextKey = "compareNext"
 
     var ratio: CGFloat { NSColor.contrastRatio(first, second) }
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        let kept = (defaults.stringArray(forKey: Self.colorsKey) ?? []).compactMap { NSColor(hexString: $0) }
+        first = kept.count == 2 ? kept[0] : NSColor(hexString: "#FFFFFF") ?? .white
+        second = kept.count == 2 ? kept[1] : NSColor(hexString: "#293029") ?? .black
+        next = Slot(rawValue: defaults.string(forKey: Self.nextKey) ?? "") ?? .first
+    }
+
+    /// Puts a colour picked away from the card into the one changed longer ago.
+    func take(_ color: NSColor) {
+        switch next {
+        case .first: first = color
+        case .second: second = color
+        }
+    }
+
+    /// Only a real change counts: clicking a code and away sets the same
+    /// colour again.
+    private func changed(_ slot: Slot, from old: NSColor) {
+        let now = slot == .first ? first : second
+        guard now.hexRRGGBB != old.hexRRGGBB else { return }
+        next = slot == .first ? .second : .first
+        defaults.set([first.hexRRGGBB, second.hexRRGGBB], forKey: Self.colorsKey)
+        defaults.set(next.rawValue, forKey: Self.nextKey)
+    }
 }
 
 /// The Compare window as the user drew it in Figma (Twine file, node 143:21,

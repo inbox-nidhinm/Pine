@@ -13,7 +13,7 @@ enum VersionHistory {
 
     /// How many pushes to GitHub the app has had, this one included. Raise it by
     /// one with every push: the first was v0.0.01, the 100th is v0.1.00.
-    static let pushes = 25
+    static let pushes = 26
 
     static var release: String { String(format: "v0.%d.%02d", pushes / 100, pushes % 100) }
 
@@ -34,6 +34,7 @@ enum VersionHistory {
 
     static let builds: [Build] = [
         .init(date: "6 October 2026", title: "The redesign", features: [
+            "A colour picked with the shortcut or from the menu bar panel also goes into the Compare card, alternating: each pick replaces whichever of the two colours was changed longer ago, so changing the top one on the card yourself sends the next pick to the bottom. This happens even while the card is closed, and the card keeps its two colours when Niram quits.",
             "The menu bar icon opens a panel in Niram's own look in place of the system menu, every option the same row with no icons: Pick Colour with its shortcut, the recent colours with their hex codes (a click copies one again), then Show App, Settings (⌘,) and Quit Niram (⌘Q). Escape or a click anywhere else closes it.",
             "Niram has its own icons, the designer's: the app icon, and a new menu bar icon that follows the menu bar's colour.",
             "Show Niram in, under General in Settings: Menu Bar (as before), Dock, or Both. In the Dock Niram is an ordinary app, in ⌘Tab, with an app menu (Pick Colour, Show App, Settings, Quit), an Edit menu so copy and paste work while typing a hex code, and a Dock menu; clicking its Dock icon shows the app.",
