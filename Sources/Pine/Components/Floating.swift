@@ -5,12 +5,13 @@ extension View {
     /// The card every panel and popup is drawn on, as Twine's. Each needs its
     /// own edge: a border alone reads as a seam and a shadow alone as a
     /// smudge. A card lying flat on a page takes no shadow.
-    func floatingPanel(corner: CGFloat = Theme.radiusPanel, shadow: Bool = true) -> some View {
+    /// `grain: false` leaves it flat.
+    func floatingPanel(corner: CGFloat = Theme.radiusPanel, shadow: Bool = true, grain: Bool = true) -> some View {
         // Grained inside the background rather than over the finished card,
         // so the texture stays under the labels and glyphs.
         background(RoundedRectangle(cornerRadius: corner)
             .fill(Theme.panel)
-            .grained()
+            .grained(grain ? Theme.grain : 0)
             .clipShape(RoundedRectangle(cornerRadius: corner)))
             .overlay(RoundedRectangle(cornerRadius: corner)
                 .strokeBorder(Theme.border, lineWidth: Theme.hairline))
@@ -18,9 +19,10 @@ extension View {
             .shadow(color: shadow ? Theme.shadow : .clear, radius: shadow ? Theme.shadowRadius : 0, y: shadow ? Theme.shadowY : 0)
     }
 
-    /// A window's whole ground: the canvas colour with the grain over it.
-    func windowGround() -> some View {
-        background(Theme.canvas.grained().ignoresSafeArea())
+    /// A window's whole ground: the canvas colour, with the grain over it
+    /// unless `grain` is false.
+    func windowGround(grain: Bool = true) -> some View {
+        background(Theme.canvas.grained(grain ? Theme.grain : 0).ignoresSafeArea())
     }
 }
 
@@ -182,5 +184,64 @@ func makeChromelessWindow<Content: View>(_ root: Content, size: CGSize? = nil) -
     window.isRestorable = false
     window.center()
     TrafficLights.keepPlaced(in: window)
+    return window
+}
+
+/// A window that is only its content's shape, as the Compare card: no title
+/// bar and no traffic lights, see-through round the card, with the window's
+/// own shadow following it. It floats above other apps' windows, so it never
+/// goes behind them, and leaves the screen only by its close button or ⌘W
+/// (the user's choice, 6 October 2026: Escape no longer closes it).
+final class CardWindow: NSWindow {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+
+    /// Escape ends typing in a code, and nothing else.
+    override func cancelOperation(_ sender: Any?) {
+        if firstResponder is NSText { makeFirstResponder(nil) }
+    }
+
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command,
+           event.charactersIgnoringModifiers == "w" {
+            close()
+            return true
+        }
+        return super.performKeyEquivalent(with: event)
+    }
+
+    /// A click outside the field being typed in ends the typing, as in
+    /// `ChromelessWindow`.
+    override func sendEvent(_ event: NSEvent) {
+        if event.type == .leftMouseDown,
+           let fieldEditor = firstResponder as? NSText,
+           let field = fieldEditor.delegate as? NSView,
+           let content = contentView {
+            let hit = content.hitTest(content.superview?.convert(event.locationInWindow, from: nil) ?? event.locationInWindow)
+            if hit.map({ !$0.isDescendant(of: field) }) ?? true { makeFirstResponder(nil) }
+        }
+        super.sendEvent(event)
+    }
+}
+
+@MainActor
+func makeCardWindow<Content: View>(_ root: Content, size: CGSize) -> CardWindow {
+    let hosting = NSHostingView(rootView: root)
+    hosting.sizingOptions = []
+    let window = CardWindow(contentRect: NSRect(origin: .zero, size: size),
+                            styleMask: [.borderless], backing: .buffered, defer: false)
+    window.contentView = hosting
+    window.isOpaque = false
+    window.backgroundColor = .clear
+    window.hasShadow = true
+    window.isMovableByWindowBackground = true
+    window.appearance = NSAppearance(named: .darkAqua)
+    window.isReleasedWhenClosed = false
+    window.isRestorable = false
+    // Above every other app's windows, and still there when Pine is not
+    // the app in front.
+    window.level = .floating
+    window.hidesOnDeactivate = false
+    window.center()
     return window
 }

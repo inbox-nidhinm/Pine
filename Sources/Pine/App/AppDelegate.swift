@@ -10,15 +10,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let panel = StatusPanel()
 
     private let compareModel = CompareModel()
-    private var compareWindow: ChromelessWindow?
+    private var compareWindow: CardWindow?
     private var settingsWindow: ChromelessWindow?
+    /// The card was open when Settings opened, so it comes back when Settings
+    /// closes (the user's request, 6 October 2026).
+    private var compareAfterSettings = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Niram's settings, once, before anything reads them.
+        FormerName.carryOver()
         AppSettings.registerDefaults()
         // Before anything can pick: it watches for a stuck eyedropper from its
-        // own thread for as long as Niram runs.
+        // own thread for as long as Pine runs.
         SamplerWatchdog.start(watching: ColorPicking.shared.state)
-        NSApp.setActivationPolicy(.accessory) // no Dock icon, no app switcher entry
+        NSApp.mainMenu = AppMenu.make(target: self)
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem.button {
@@ -29,6 +34,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // Opens on the press, as a menu does, not on the release.
             button.sendAction(on: [.leftMouseDown, .rightMouseDown])
         }
+        applyPresence()
 
         registerHotKey()
 
@@ -39,7 +45,47 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.registerHotKey()
             }
         }
+
+        NotificationCenter.default.addObserver(
+            forName: AppSettings.presenceChanged, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.applyPresence() }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: AppSettings.appearanceChanged, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.compareWindow?.appearance = AppSettings.appearance.window
+                self?.settingsWindow?.appearance = AppSettings.appearance.window
+            }
+        }
     }
+
+    /// Shows Pine in the menu bar, the Dock or both, as Settings says. In the
+    /// Dock it is an ordinary app: in ⌘Tab, with its menu bar menus.
+    private func applyPresence() {
+        let presence = AppSettings.presence
+        statusItem.isVisible = presence.inMenuBar
+        if !presence.inMenuBar { panel.close() }
+        let policy: NSApplication.ActivationPolicy = presence.inDock ? .regular : .accessory
+        guard NSApp.activationPolicy() != policy else { return }
+        // Whatever was in front stays in front: changing policy can hide an
+        // accessory app's windows behind others.
+        let front = NSApp.windows.filter { $0.isVisible && $0.canBecomeMain }
+        NSApp.setActivationPolicy(policy)
+        NSApp.activate(ignoringOtherApps: true)
+        front.forEach { $0.orderFrontRegardless() }
+    }
+
+    /// The Dock icon's menu.
+    func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+        AppMenu.dock(target: self)
+    }
+
+    @objc func menuPickColour() { pickColor() }
+    @objc func menuShowApp() { showCompareWindow() }
+    @objc func menuSettings() { showSettingsWindow() }
 
     // The eyedropper outlives the app that started it, so a pick in progress
     // is ended rather than left over every screen.
@@ -89,33 +135,50 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ])
     }
 
-    /// Copies a recent colour again, leaving the list as it is so nothing
-    /// moves under the pointer, and closes the panel once its tick has shown.
+    /// Copies a recent colour again, leaving the list as it is, and closes
+    /// the panel; the menu bar icon's tick says it was copied.
     private func copyRecent(_ hex: String) {
         copyToClipboard(hex)
         flashStatusIcon()
-        DispatchQueue.main.asyncAfter(deadline: .now() + Theme.copiedPause) { [weak self] in
-            self?.panel.close()
-        }
+        panel.close()
     }
 
     // MARK: - Windows
 
     private func showCompareWindow() {
+        // Opened by hand: Settings closing has nothing left to bring back.
+        compareAfterSettings = false
         if compareWindow == nil {
-            let window = makeChromelessWindow(CompareView(model: compareModel), size: Theme.compareWindow)
-            window.title = "Niram"
+            let window = makeCardWindow(CompareView(model: compareModel, recents: recents) { [weak self] in
+                self?.compareWindow?.close()
+            }, size: Theme.compareWindow)
+            window.title = "Pine"
+            window.appearance = AppSettings.appearance.window
             compareWindow = window
         }
         NSApp.activate(ignoringOtherApps: true)
         compareWindow?.makeKeyAndOrderFront(nil)
-        compareWindow?.clearInitialFocus()
+        // Nothing typed in until a code is clicked.
+        DispatchQueue.main.async { [weak self] in self?.compareWindow?.makeFirstResponder(nil) }
     }
 
+    /// Settings shows alone: an open card is put away, and comes back when
+    /// Settings closes. A card that was not open stays closed.
     private func showSettingsWindow() {
+        if compareWindow?.isVisible == true {
+            compareWindow?.orderOut(nil)
+            compareAfterSettings = true
+        }
         if settingsWindow == nil {
-            let window = makeChromelessWindow(SettingsView())
-            window.title = "Niram Settings"
+            let window = makeChromelessWindow(SettingsView(), size: Theme.settingsWindow)
+            window.title = "Pine Settings"
+            // Light or dark as the Appearance setting says, as the card is.
+            window.appearance = AppSettings.appearance.window
+            NotificationCenter.default.addObserver(
+                forName: NSWindow.willCloseNotification, object: window, queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated { self?.settingsClosed() }
+            }
             settingsWindow = window
         }
         NSApp.activate(ignoringOtherApps: true)
@@ -123,16 +186,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settingsWindow?.clearInitialFocus()
     }
 
+    private func settingsClosed() {
+        guard compareAfterSettings else { return }
+        // A turn later, once Settings has gone.
+        DispatchQueue.main.async { [weak self] in self?.showCompareWindow() }
+    }
+
     // MARK: - Picking
 
-    /// Picks a colour and copies it. From the shortcut, `toggles` ends a pick
-    /// already in progress instead, so the shortcut is always a way out.
+    /// Picks a colour, copies it and puts it in the Compare card, alternating
+    /// top and bottom, whether the card is open or not. From the shortcut,
+    /// `toggles` ends a pick already in progress instead, so the shortcut is
+    /// always a way out.
     private func pickColor(toggles: Bool = false) {
         let done: (NSColor?) -> Void = { [weak self] color in
             guard let self, let color else { return }
             let hex = AppSettings.formatHex(color)
             self.copyToClipboard(hex)
             self.recents.add(hex)
+            self.compareModel.take(color)
             self.flashStatusIcon()
         }
         if toggles {
@@ -150,28 +222,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Icons
 
+    /// The designer's menu bar icon (`Resources/menu-icon.svg`, 6 October
+    /// 2026), drawn by macOS from the SVG, as a template so it follows the
+    /// menu bar's colour.
     private static let menuBarIcon: NSImage = {
-        let size = NSSize(width: 18, height: 18)
-        let image = NSImage(size: size, flipped: false) { rect in
-            let circleInset: CGFloat = 1.5
-            let circleRect = rect.insetBy(dx: circleInset, dy: circleInset)
-            let circlePath = NSBezierPath(ovalIn: circleRect)
-            circlePath.lineWidth = 1.4
-            NSColor.black.setStroke()
-            circlePath.stroke()
-
-            let squareSide: CGFloat = 6
-            let squareRect = NSRect(
-                x: rect.midX - squareSide / 2,
-                y: rect.midY - squareSide / 2,
-                width: squareSide,
-                height: squareSide
-            )
-            NSColor.black.setFill()
-            NSBezierPath(rect: squareRect).fill()
-
-            return true
-        }
+        let image = Bundle.main.url(forResource: "menu-icon", withExtension: "svg").flatMap(NSImage.init(contentsOf:))
+            ?? NSImage(size: NSSize(width: Theme.menuBarIcon, height: Theme.menuBarIcon))
+        image.size = NSSize(width: Theme.menuBarIcon, height: Theme.menuBarIcon)
         image.isTemplate = true
         return image
     }()

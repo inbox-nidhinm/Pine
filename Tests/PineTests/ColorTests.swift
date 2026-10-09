@@ -1,6 +1,6 @@
 import Testing
 import AppKit
-@testable import Niram
+@testable import Pine
 
 @Suite struct ColorTests {
     @Test func hexReadsAndWritesTheSameColour() {

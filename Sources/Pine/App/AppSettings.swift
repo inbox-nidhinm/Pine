@@ -8,8 +8,61 @@ enum AppSettings {
     static let hotKeyModifiersKey = "hotKeyModifiers"
     static let uppercaseHexKey = "uppercaseHex"
     static let includeHashKey = "includeHash"
+    static let appearanceKey = "appearance"
+    static let presenceKey = "showIn"
 
-    static let shortcutChanged = Notification.Name("NiramShortcutChanged")
+    static let shortcutChanged = Notification.Name("PineShortcutChanged")
+    static let appearanceChanged = Notification.Name("PineAppearanceChanged")
+    static let presenceChanged = Notification.Name("PinePresenceChanged")
+
+    /// Where Pine shows: its button in the menu bar, its icon in the Dock,
+    /// or both (the user's request, 6 October 2026). The menu bar alone is
+    /// the default, as Pine always was.
+    enum Presence: String, CaseIterable {
+        case menuBar, dock, both
+
+        var name: String {
+            switch self {
+            case .menuBar: "Menu Bar"
+            case .dock: "Dock"
+            case .both: "Both"
+            }
+        }
+
+        var inMenuBar: Bool { self != .dock }
+        var inDock: Bool { self != .menuBar }
+    }
+
+    static var presence: Presence {
+        Presence(rawValue: UserDefaults.standard.string(forKey: presenceKey) ?? "") ?? .menuBar
+    }
+
+    /// Light or dark for the Compare card: the Mac's own by default (the
+    /// user's choice, 6 October 2026), or always one.
+    enum Appearance: String, CaseIterable {
+        case system, light, dark
+
+        var name: String {
+            switch self {
+            case .system: "System"
+            case .light: "Light"
+            case .dark: "Dark"
+            }
+        }
+
+        /// The window's appearance: nil follows the Mac.
+        var window: NSAppearance? {
+            switch self {
+            case .system: nil
+            case .light: NSAppearance(named: .aqua)
+            case .dark: NSAppearance(named: .darkAqua)
+            }
+        }
+    }
+
+    static var appearance: Appearance {
+        Appearance(rawValue: UserDefaults.standard.string(forKey: appearanceKey) ?? "") ?? .system
+    }
 
     static func registerDefaults() {
         UserDefaults.standard.register(defaults: [

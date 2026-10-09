@@ -1,10 +1,10 @@
 # Pine
 
-A menu bar colour picker for macOS. Press ⇧⌘C to pick a colour from the screen and copy its hex code. On this branch the app is still called Niram.
+A menu bar colour picker for macOS. Press ⇧⌘C to pick a colour from the screen and copy its hex code.
 
 ```bash
 ./make-app.sh
-open build/Niram.app
+open build/Pine.app
 ```
 
 ## License

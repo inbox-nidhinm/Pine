@@ -1,5 +1,5 @@
 import Testing
-@testable import Niram
+@testable import Pine
 
 @Suite struct RecentColorsTests {
     @Test func aNewColourGoesFirst() {

@@ -3,12 +3,15 @@ import AppKit
 import Carbon
 import ServiceManagement
 
-/// The Settings window, laid out as Twine's Settings page: the title under the
-/// traffic lights, each kind of setting as a card of rows in two columns, and
-/// Version History with the build at the foot.
+/// The Settings window: the title under the traffic lights, then one vertical
+/// list (the user's choice, 6 October 2026, in place of Twine's cards), each
+/// kind of setting a heading over its rows, in a tall window; Version History
+/// with the build at the foot.
 struct SettingsView: View {
     @AppStorage(AppSettings.uppercaseHexKey) private var uppercaseHex = true
     @AppStorage(AppSettings.includeHashKey) private var includeHash = true
+    @AppStorage(AppSettings.appearanceKey) private var appearance = AppSettings.Appearance.system.rawValue
+    @AppStorage(AppSettings.presenceKey) private var presence = AppSettings.Presence.menuBar.rawValue
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var showsHistory = false
 
@@ -24,16 +27,15 @@ struct SettingsView: View {
 
                 Rectangle().fill(Theme.border).frame(height: Theme.hairline)
 
-                HStack(alignment: .top, spacing: Theme.settingsCardGap) {
-                    VStack(spacing: Theme.settingsCardGap) {
-                        picking
+                ScrollView {
+                    VStack(alignment: .leading, spacing: Theme.settingsSectionGap) {
+                        shortcut
+                        hexCodes
                         general
                     }
-                    .frame(width: Theme.settingsColumn)
-                    hexCodes
-                        .frame(width: Theme.settingsColumn)
+                    .padding(Theme.settingsMargin)
                 }
-                .padding(Theme.settingsMargin)
+                .scrollIndicators(.never)
 
                 // Not a setting: nothing here changes what the app does, so it
                 // sits apart, at the foot.
@@ -47,42 +49,42 @@ struct SettingsView: View {
                 }
                 .padding(Theme.settingsMargin)
             }
-            .fixedSize()
+            .frame(width: Theme.settingsWindow.width, height: Theme.settingsWindow.height)
 
             if showsHistory {
                 VersionHistoryCard { showsHistory = false }
             }
         }
         .windowGround()
+        // Up under the hidden title bar, so the window is exactly its size;
+        // the title block leaves room for the traffic lights.
+        .ignoresSafeArea()
     }
 
     // MARK: Cards
 
-    private var picking: some View {
-        card("Picking") {
-            row(.eyedropper, "Pick colour",
-                help: "The shortcut that picks a colour from anywhere on screen and copies its hex code. Click it and press a new one: it needs ⌘, ⌥ or ⌃. Escape keeps the old one.") {
+    private var shortcut: some View {
+        section("Global Shortcut") {
+            row(.eyedropper, "Pick colour") {
                 ShortcutField()
             }
         }
     }
 
     private var hexCodes: some View {
-        card("Hex Codes") {
-            row(tile: AnyView(Text("A").font(ThemeFont.hex)), "Uppercase",
-                help: "Copy hex codes in capitals (#FFAA00) rather than small letters (#ffaa00).") {
+        section("Hex Codes") {
+            row(tile: AnyView(Text("A").font(ThemeFont.hex)), "Uppercase") {
                 PillToggle(isOn: uppercaseHex) { uppercaseHex.toggle() }
             }
             dashes
-            row(tile: AnyView(Text("#").font(ThemeFont.hex)), "Include #",
-                help: "Start copied hex codes with #.") {
+            row(tile: AnyView(Text("#").font(ThemeFont.hex)), "Include #") {
                 PillToggle(isOn: includeHash) { includeHash.toggle() }
             }
             dashes
             row(tile: AnyView(RoundedRectangle(cornerRadius: Theme.radiusSwatch)
                     .fill(Theme.accent)
                     .frame(width: Theme.swatch, height: Theme.swatch)),
-                "Copied as", help: "How a colour's hex code is copied with these settings.") {
+                "Copied as") {
                 Text(AppSettings.formatHex(Self.sample, uppercase: uppercaseHex, hash: includeHash))
                     .font(ThemeFont.hex)
                     .foregroundStyle(Theme.textSecondary)
@@ -91,14 +93,30 @@ struct SettingsView: View {
     }
 
     private var general: some View {
-        card("General") {
-            row(.power, "Launch at login", help: "Start Niram when you log in, so the shortcut is always ready.") {
+        section("General") {
+            row(tile: AnyView(AppearanceGlyph()), "Appearance") {
+                SegmentRow(options: AppSettings.Appearance.allCases.map { ($0.rawValue, $0.name) },
+                           chosen: appearance) { picked in
+                    appearance = picked
+                    NotificationCenter.default.post(name: AppSettings.appearanceChanged, object: nil)
+                }
+            }
+            dashes
+            row(tile: AnyView(IconView(.settings, size: Theme.settingsTileIcon)), "Show Pine in") {
+                SegmentRow(options: AppSettings.Presence.allCases.map { ($0.rawValue, $0.name) },
+                           chosen: presence) { picked in
+                    presence = picked
+                    NotificationCenter.default.post(name: AppSettings.presenceChanged, object: nil)
+                }
+            }
+            dashes
+            row(.power, "Launch at login") {
                 PillToggle(isOn: launchAtLogin) { setLaunchAtLogin(!launchAtLogin) }
             }
         }
     }
 
-    /// The colour the Copied as row shows: Niram's own magenta.
+    /// The colour the Copied as row shows: Pine's own magenta.
     private static let sample = NSColor(hexString: "#E2387F") ?? .magenta
 
     private func setLaunchAtLogin(_ enabled: Bool) {
@@ -117,39 +135,30 @@ struct SettingsView: View {
 
     // MARK: Pieces
 
-    /// A kind of setting: its name over a card holding its rows.
-    private func card<Content: View>(_ title: String, @ViewBuilder _ rows: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: Theme.settingsCardTitleGap) {
+    /// A kind of setting: its name over its rows, flat on the page.
+    private func section<Content: View>(_ title: String, @ViewBuilder _ rows: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
             Text(title)
                 .font(ThemeFont.labelStrong)
                 .foregroundStyle(Theme.textSecondary)
-                .padding(.leading, Theme.rowGap)
-            // As far in at the top and bottom as at the sides: a row already
-            // leaves `rowInset` round its tile, so the card adds the rest.
+                .padding(.bottom, Theme.settingsCardTitleGap)
             VStack(alignment: .leading, spacing: 0) { rows() }
-                .padding(.horizontal, Theme.panelPad)
-                .padding(.vertical, Theme.panelPad - Self.rowInset)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                // Flat on the page, with no shadow, as Twine's.
-                .floatingPanel(shadow: false)
         }
     }
 
-    /// The dashed line between two rows of a card.
+    /// The line between two rows of a section.
     private var dashes: some View {
-        DashedLine()
-            .stroke(Theme.border, style: StrokeStyle(lineWidth: Theme.hairline, dash: Theme.settingsDash))
-            .frame(height: Theme.hairline)
+        Rectangle().fill(Theme.border).frame(height: Theme.hairline)
     }
 
-    /// An icon on its tile, a name, and the control at the right. The
-    /// explanation is the row's tooltip.
-    private func row<Control: View>(_ icon: Icon, _ label: String, help: String,
+    /// An icon on its tile, a name, and the control at the right.
+    private func row<Control: View>(_ icon: Icon, _ label: String,
                                     @ViewBuilder _ control: () -> Control) -> some View {
-        row(tile: AnyView(IconView(icon, size: Theme.settingsTileIcon)), label, help: help, control)
+        row(tile: AnyView(IconView(icon, size: Theme.settingsTileIcon)), label, control)
     }
 
-    private func row<Control: View>(tile: AnyView, _ label: String, help: String,
+    private func row<Control: View>(tile: AnyView, _ label: String,
                                     @ViewBuilder _ control: () -> Control) -> some View {
         HStack(spacing: Theme.panelPad) {
             tile
@@ -164,19 +173,18 @@ struct SettingsView: View {
             control()
         }
         .frame(height: Theme.settingsRow)
-        .help(help)
     }
 
-    /// The room a row leaves above and below its tile.
-    private static let rowInset = (Theme.settingsRow - Theme.settingsTile) / 2
 }
 
-private struct DashedLine: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.minX, y: rect.midY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
-        return path
+/// Half a circle filled: the usual mark for light and dark.
+private struct AppearanceGlyph: View {
+    var body: some View {
+        ZStack {
+            Circle().strokeBorder(lineWidth: Theme.glyphLine)
+            Circle().trim(from: 0.25, to: 0.75).fill()
+        }
+        .frame(width: Theme.settingsTileIcon, height: Theme.settingsTileIcon)
     }
 }
 

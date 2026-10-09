@@ -23,7 +23,7 @@ struct VersionHistoryCard: View {
                             .foregroundStyle(Theme.textTertiary)
                     }
                     Spacer(minLength: 0)
-                    IconButton(icon: .close, help: "Close (Esc)", action: dismiss)
+                    IconButton(icon: .close, action: dismiss)
                         .keyboardShortcut(.cancelAction)
                 }
                 .padding(.leading, Theme.historyPad)
@@ -40,7 +40,7 @@ struct VersionHistoryCard: View {
                     .padding(Theme.historyPad)
                 }
             }
-            .frame(width: Theme.historyWidth)
+            .frame(maxWidth: Theme.historyWidth)
             .floatingPanel()
             .padding(Theme.settingsMargin)
         }
