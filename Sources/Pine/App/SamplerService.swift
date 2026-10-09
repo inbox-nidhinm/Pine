@@ -82,16 +82,16 @@ enum SamplerService {
 }
 
 /// What happens with the eyedropper, written to
-/// `~/Library/Logs/Niram/eyedropper.log`, so a stuck screen leaves evidence:
+/// `~/Library/Logs/Pine/eyedropper.log`, so a stuck screen leaves evidence:
 /// on 6 October 2026 the user had to shut the Mac down by force and nothing
 /// was left to say why. Kept short: it starts again past 256 KB.
 enum EyedropperLog {
-    private static let queue = DispatchQueue(label: "niram.eyedropper-log")
+    private static let queue = DispatchQueue(label: "pine.eyedropper-log")
     private static let limit = 256 * 1024
 
     static var url: URL {
         FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Logs/Niram/eyedropper.log")
+            .appendingPathComponent("Library/Logs/Pine/eyedropper.log")
     }
 
     static func write(_ line: String) {

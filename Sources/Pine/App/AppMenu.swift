@@ -1,6 +1,6 @@
 import AppKit
 
-/// Niram's menus, for when it shows in the Dock and is an ordinary app: its
+/// Pine's menus, for when it shows in the Dock and is an ordinary app: its
 /// app menu, an Edit menu (so ⌘C, ⌘V and ⌘A work while typing a hex code),
 /// and the Dock icon's menu. In the menu bar alone, macOS shows none of them.
 @MainActor
@@ -8,14 +8,14 @@ enum AppMenu {
     static func make(target: AnyObject) -> NSMenu {
         let main = NSMenu()
 
-        let app = NSMenu(title: "Niram")
+        let app = NSMenu(title: "Pine")
         app.addItem(item("Pick Colour", #selector(AppDelegate.menuPickColour), target: target))
         app.addItem(item("Show App", #selector(AppDelegate.menuShowApp), target: target))
         app.addItem(.separator())
         app.addItem(item("Settings…", #selector(AppDelegate.menuSettings), key: ",", target: target))
         app.addItem(.separator())
-        app.addItem(item("Hide Niram", #selector(NSApplication.hide(_:)), key: "h"))
-        app.addItem(item("Quit Niram", #selector(NSApplication.terminate(_:)), key: "q"))
+        app.addItem(item("Hide Pine", #selector(NSApplication.hide(_:)), key: "h"))
+        app.addItem(item("Quit Pine", #selector(NSApplication.terminate(_:)), key: "q"))
         main.addItem(submenu(app))
 
         let edit = NSMenu(title: "Edit")

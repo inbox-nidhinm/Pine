@@ -11,13 +11,13 @@ enum AppSettings {
     static let appearanceKey = "appearance"
     static let presenceKey = "showIn"
 
-    static let shortcutChanged = Notification.Name("NiramShortcutChanged")
-    static let appearanceChanged = Notification.Name("NiramAppearanceChanged")
-    static let presenceChanged = Notification.Name("NiramPresenceChanged")
+    static let shortcutChanged = Notification.Name("PineShortcutChanged")
+    static let appearanceChanged = Notification.Name("PineAppearanceChanged")
+    static let presenceChanged = Notification.Name("PinePresenceChanged")
 
-    /// Where Niram shows: its button in the menu bar, its icon in the Dock,
+    /// Where Pine shows: its button in the menu bar, its icon in the Dock,
     /// or both (the user's request, 6 October 2026). The menu bar alone is
-    /// the default, as Niram always was.
+    /// the default, as Pine always was.
     enum Presence: String, CaseIterable {
         case menuBar, dock, both
 

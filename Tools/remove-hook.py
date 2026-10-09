@@ -10,7 +10,7 @@ hook, and the broken file was pushed.
 import pathlib
 import sys
 
-path = pathlib.Path(__file__).resolve().parent.parent / "Sources/Niram/App/AppDelegate.swift"
+path = pathlib.Path(__file__).resolve().parent.parent / "Sources/Pine/App/AppDelegate.swift"
 lines = path.read_text().split("\n")
 starts = [i for i, l in enumerate(lines) if "// TEMPORARY TEST HOOK" in l]
 ends = [i for i, l in enumerate(lines) if "// END TEST HOOK" in l]

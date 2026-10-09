@@ -152,7 +152,7 @@ private struct ColorSection: View {
     @State private var hovering = false
     @FocusState private var typing: Bool
 
-    private var ink: Color { Niram.ink(on: color) }
+    private var ink: Color { Pine.ink(on: color) }
 
     var body: some View {
         ZStack {

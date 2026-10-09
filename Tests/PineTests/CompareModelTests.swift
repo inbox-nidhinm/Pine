@@ -1,12 +1,12 @@
 import AppKit
 import Testing
-@testable import Niram
+@testable import Pine
 
 @MainActor @Suite(.serialized) struct CompareModelTests {
     /// One defaults domain for these tests, emptied before and after each
     /// (a domain per test left a file behind for each).
     private func withDefaults(_ body: (UserDefaults) -> Void) {
-        let name = "com.nidhin.niram.tests"
+        let name = "com.nidhin.pine.tests"
         let defaults = UserDefaults(suiteName: name)!
         defaults.removePersistentDomain(forName: name)
         defer { defaults.removePersistentDomain(forName: name) }

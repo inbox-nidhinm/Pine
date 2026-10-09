@@ -238,7 +238,7 @@ func makeCardWindow<Content: View>(_ root: Content, size: CGSize) -> CardWindow 
     window.appearance = NSAppearance(named: .darkAqua)
     window.isReleasedWhenClosed = false
     window.isRestorable = false
-    // Above every other app's windows, and still there when Niram is not
+    // Above every other app's windows, and still there when Pine is not
     // the app in front.
     window.level = .floating
     window.hidesOnDeactivate = false

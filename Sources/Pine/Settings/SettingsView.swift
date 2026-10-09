@@ -102,7 +102,7 @@ struct SettingsView: View {
                 }
             }
             dashes
-            row(tile: AnyView(IconView(.settings, size: Theme.settingsTileIcon)), "Show Niram in") {
+            row(tile: AnyView(IconView(.settings, size: Theme.settingsTileIcon)), "Show Pine in") {
                 SegmentRow(options: AppSettings.Presence.allCases.map { ($0.rawValue, $0.name) },
                            chosen: presence) { picked in
                     presence = picked
@@ -116,7 +116,7 @@ struct SettingsView: View {
         }
     }
 
-    /// The colour the Copied as row shows: Niram's own magenta.
+    /// The colour the Copied as row shows: Pine's own magenta.
     private static let sample = NSColor(hexString: "#E2387F") ?? .magenta
 
     private func setLaunchAtLogin(_ enabled: Bool) {

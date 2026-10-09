@@ -1,11 +1,11 @@
 import SwiftUI
 import AppKit
 
-/// Every colour, size, radius and type style in Niram, in one place.
+/// Every colour, size, radius and type style in Pine, in one place.
 ///
 /// Taken from the "Flip Design System" page of the JUI Figma file
 /// (2XErpBfGuIGNU0DkL58Ute, node 171:2055), as Twine's are. The one deliberate
-/// difference is the accent: Niram is magenta (#E2387F) where Flip is green and
+/// difference is the accent: Pine is magenta (#E2387F) where Flip is green and
 /// Twine blue, and the tokens derived from the accent (`accentHover`,
 /// `rowSelected`) are worked out again to match.
 ///

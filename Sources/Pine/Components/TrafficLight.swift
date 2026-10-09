@@ -9,7 +9,7 @@ import AppKit
 /// A traffic light shows its ✕ only while the pointer is over its group, which
 /// it learns by asking the view holding it `_mouseInGroup:`, a private method
 /// of the title bar's own holder. `Holder` answers it from a tracking area.
-/// Niram is internal only, so private methods are fine (as in Twine).
+/// Pine is internal only, so private methods are fine (as in Twine).
 struct TrafficLightClose: NSViewRepresentable {
     let action: () -> Void
 

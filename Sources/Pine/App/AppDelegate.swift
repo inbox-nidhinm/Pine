@@ -17,9 +17,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var compareAfterSettings = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Niram's settings, once, before anything reads them.
+        FormerName.carryOver()
         AppSettings.registerDefaults()
         // Before anything can pick: it watches for a stuck eyedropper from its
-        // own thread for as long as Niram runs.
+        // own thread for as long as Pine runs.
         SamplerWatchdog.start(watching: ColorPicking.shared.state)
         NSApp.mainMenu = AppMenu.make(target: self)
 
@@ -60,7 +62,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    /// Shows Niram in the menu bar, the Dock or both, as Settings says. In the
+    /// Shows Pine in the menu bar, the Dock or both, as Settings says. In the
     /// Dock it is an ordinary app: in ⌘Tab, with its menu bar menus.
     private func applyPresence() {
         let presence = AppSettings.presence
@@ -150,7 +152,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let window = makeCardWindow(CompareView(model: compareModel, recents: recents) { [weak self] in
                 self?.compareWindow?.close()
             }, size: Theme.compareWindow)
-            window.title = "Niram"
+            window.title = "Pine"
             window.appearance = AppSettings.appearance.window
             compareWindow = window
         }
@@ -169,7 +171,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         if settingsWindow == nil {
             let window = makeChromelessWindow(SettingsView(), size: Theme.settingsWindow)
-            window.title = "Niram Settings"
+            window.title = "Pine Settings"
             // Light or dark as the Appearance setting says, as the card is.
             window.appearance = AppSettings.appearance.window
             NotificationCenter.default.addObserver(

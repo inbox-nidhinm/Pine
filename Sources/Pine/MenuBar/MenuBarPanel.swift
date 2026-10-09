@@ -39,7 +39,7 @@ struct MenuBarPanel: View {
 
             PanelRow(title: "Show App", action: actions.compare)
             PanelRow(title: "Settings", shortcut: "⌘,", action: actions.settings)
-            PanelRow(title: "Quit Niram", shortcut: "⌘Q", action: actions.quit)
+            PanelRow(title: "Quit Pine", shortcut: "⌘Q", action: actions.quit)
         }
         .padding(Theme.menuPad)
         .frame(width: Theme.menuPanelWidth, alignment: .leading)

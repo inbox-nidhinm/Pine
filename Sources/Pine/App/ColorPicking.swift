@@ -6,9 +6,9 @@ import AppKit
 /// The eyedropper is macOS's (`SamplerService`). Twice on 6 October 2026 the
 /// user was left with screens that took no click at all, the menu bar and
 /// Dock included, with no way out but forcing the Mac off: the service's
-/// windows stayed up after a pick, and while they did, neither Niram's
-/// shortcut nor anything else reached Niram. So nothing here relies on the
-/// user being able to reach Niram:
+/// windows stayed up after a pick, and while they did, neither Pine's
+/// shortcut nor anything else reached Pine. So nothing here relies on the
+/// user being able to reach Pine:
 ///
 /// - one pick at a time, the sampler held until it answers;
 /// - a new pick waits until the last eyedropper has gone from the screen.
@@ -18,7 +18,7 @@ import AppKit
 ///   for the service to be gone before asking;
 /// - `SamplerWatchdog` watches the screen from its own thread and ends the
 ///   service when its windows are up with no magnifier, when they outstay
-///   Niram's pick, or when a pick runs past two minutes, and lets go of a pick
+///   Pine's pick, or when a pick runs past two minutes, and lets go of a pick
 ///   that has silently died;
 /// - the shortcut pressed while picking ends the pick, and quitting ends one;
 /// - every step that matters is written to `EyedropperLog`.
@@ -65,7 +65,7 @@ final class ColorPicking {
     }
 
     /// Ends the pick under way, taking the eyedropper off the screen.
-    func end(because reason: String = "Niram is quitting") {
+    func end(because reason: String = "Pine is quitting") {
         guard isPicking else { return }
         SamplerService.end(because: reason)
         answer(nil, session: session)
@@ -133,7 +133,7 @@ final class ColorPicking {
     }
 }
 
-/// Whether Niram is picking, and since when, for the watchdog's thread.
+/// Whether Pine is picking, and since when, for the watchdog's thread.
 final class PickState: @unchecked Sendable {
     struct Value {
         /// The sampler has been asked and has not answered.
@@ -163,7 +163,7 @@ final class PickState: @unchecked Sendable {
 }
 
 /// Watches the eyedropper from its own thread, twice a second, and ends it
-/// when it is stuck, whatever state Niram's main thread is in. See
+/// when it is stuck, whatever state Pine's main thread is in. See
 /// `ColorPicking` for why.
 enum SamplerWatchdog {
     /// How often it looks, and how long each sign must last before it acts.
@@ -171,7 +171,7 @@ enum SamplerWatchdog {
     /// Screen covers with no magnifier: the stuck state the user saw (a plain
     /// pointer, hover working, no click landing).
     static let noMagnifierLimit: TimeInterval = 1.5
-    /// Covers still up after Niram's pick ended, within `afterPickWindow` of it
+    /// Covers still up after Pine's pick ended, within `afterPickWindow` of it
     /// (beyond that they are taken to be another app's eyedropper).
     static let outstayLimit: TimeInterval = 2
     static let afterPickWindow: TimeInterval = 60
@@ -180,7 +180,7 @@ enum SamplerWatchdog {
     /// A pick with nothing on screen for this long has died.
     static let deadLimit: TimeInterval = 1.5
 
-    private static let queue = DispatchQueue(label: "niram.sampler-watchdog", qos: .userInitiated)
+    private static let queue = DispatchQueue(label: "pine.sampler-watchdog", qos: .userInitiated)
     nonisolated(unsafe) private static var timer: DispatchSourceTimer?
 
     @MainActor static func start(watching state: PickState) {
@@ -206,13 +206,13 @@ enum SamplerWatchdog {
                 SamplerService.end(because: "watchdog: the screen was covered with no magnifier for \(noMagnifierLimit) s")
                 ended = true
             } else if outstayed >= outstayLimit {
-                SamplerService.end(because: "watchdog: the eyedropper stayed on screen \(outstayLimit) s after Niram's pick ended")
+                SamplerService.end(because: "watchdog: the eyedropper stayed on screen \(outstayLimit) s after Pine's pick ended")
                 ended = true
             } else if pick.picking && pickAge >= longestPick {
                 SamplerService.end(because: "watchdog: a pick ran past \(Int(longestPick)) s")
                 ended = true
             } else if dead >= deadLimit {
-                EyedropperLog.write("watchdog: a pick showed nothing on screen for \(deadLimit) s, so Niram let go of it")
+                EyedropperLog.write("watchdog: a pick showed nothing on screen for \(deadLimit) s, so Pine let go of it")
                 ended = true
             }
             if ended {
