@@ -322,7 +322,7 @@ public enum Theme {
 // MARK: - Type
 
 /// The type styles, by their names in Figma. SF Pro throughout, except the
-/// display face (PP Kyoto) for large numbers and titles.
+/// display face (Trupeer Slab) for large numbers and titles.
 public enum ThemeFont {
     /// Every label, value and menu row.
     public static let label = Font.system(size: 11)
@@ -335,26 +335,43 @@ public enum ThemeFont {
     /// A hex code.
     public static let hex = Font.system(size: 12, design: .monospaced)
 
-    /// PP Kyoto, Light for titles and Thin for large numbers.
-    public enum DisplayWeight: String, CaseIterable, Sendable {
-        case light = "PPKyoto-Light"
-        case thin = "PPKyoto-Thin"
+    /// Trupeer Slab, Light for titles and Thin for large numbers. The value
+    /// is the weight on the font's own axis.
+    public enum DisplayWeight: CGFloat, CaseIterable, Sendable {
+        case light = 300
+        case thin = 100
     }
 
-    /// The display face. Registered with the process at first use, from the
-    /// app's Resources/Fonts. If that fails (as under `swift run`, which has no
-    /// app bundle), `Font.custom` falls back to the system face.
+    /// The display face. Trupeer Slab is one variable font, set here to the
+    /// weight and to the optical size matching the size it is drawn at (held
+    /// to the font's range, 16 to 144), as Twine sets Newsreader, so each size
+    /// gets the cut drawn for it. It is registered with the process at first
+    /// use, from the app's Resources/Fonts. If that fails (as under `swift
+    /// run`, which has no app bundle), the system face shows instead.
     public static func display(_ size: CGFloat, _ weight: DisplayWeight = .light) -> Font {
-        _ = registered
-        return .custom(weight.rawValue, size: size)
+        guard let font = displayFont(size, weight) else { return .system(size: size, weight: .light) }
+        return Font(font)
     }
 
-    private static let registered: Bool = {
-        DisplayWeight.allCases.map { weight in
-            guard let url = Bundle.main.url(forResource: weight.rawValue, withExtension: "otf", subdirectory: "Fonts")
-            else { return false }
-            return CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
-        }.allSatisfy { $0 }
+    /// The display face at `size` and `weight`, or nil when it could not be
+    /// loaded.
+    static func displayFont(_ size: CGFloat, _ weight: DisplayWeight) -> CTFont? {
+        guard let trupeerSlab else { return nil }
+        // The axes by their four-letter tags, which Core Text keys by number.
+        let wght = 0x7767_6874, opsz = 0x6F70_737A
+        let variation = [wght: weight.rawValue, opsz: min(max(size, 16), 144)] as CFDictionary
+        let set = CTFontDescriptorCreateWithAttributes([kCTFontVariationAttribute: variation] as CFDictionary)
+        return CTFontCreateCopyWithAttributes(trupeerSlab, size, nil, set)
+    }
+
+    /// Core Text fonts never change once made, so one is safe to share.
+    nonisolated(unsafe) private static let trupeerSlab: CTFont? = {
+        guard let url = Bundle.main.url(forResource: "TrupeerSlab", withExtension: "ttf", subdirectory: "Fonts"),
+              CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil),
+              let found = CTFontManagerCreateFontDescriptorsFromURL(url as CFURL) as? [CTFontDescriptor],
+              let first = found.first
+        else { return nil }
+        return CTFontCreateWithFontDescriptor(first, 12, nil)
     }()
 }
 

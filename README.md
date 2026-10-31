@@ -9,4 +9,4 @@ open build/Pine.app
 
 ## License
 
-[MIT](LICENSE). The bundled PP Kyoto fonts are not covered and stay under their own licence.
+[MIT](LICENSE). The bundled Trupeer Slab font is not covered: it is under the SIL Open Font License, in `Resources/Fonts/OFL.txt`.
