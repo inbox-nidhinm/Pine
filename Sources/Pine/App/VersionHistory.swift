@@ -13,7 +13,7 @@ enum VersionHistory {
 
     /// How many pushes to GitHub the app has had, this one included. Raise it by
     /// one with every push: the first was v0.0.01, the 100th is v0.1.00.
-    static let pushes = 31
+    static let pushes = 32
 
     static var release: String { String(format: "v0.%d.%02d", pushes / 100, pushes % 100) }
 
@@ -45,7 +45,7 @@ enum VersionHistory {
             "Settings has a light mode too, following the same Appearance choice as the Compare card: a light grey page with its grain, dark type, grey switches, and tiles, fields and lines that stand out from the page as much as they do in dark mode. The menu bar panel stays dark.",
             "Your recent colours stand in a column of round swatches beside the Compare card, newest at the top. Click one to put it in the top colour, Option-click for the bottom one. Pine now keeps your last nine colours (the menu bar panel shows the latest five), and colours picked on the card join them.",
             "Opening Settings while the Compare card is open puts the card away; closing Settings brings it back. If the card was not open, it stays closed.",
-            "The contrast ratio is shown large, in PP Kyoto, with a pill for each of AA, AA Large and AAA, outlined when reached and dimmed when not.",
+            "The contrast ratio is shown large, in the display face, with a pill for each of AA, AA Large and AAA, outlined when reached and dimmed when not.",
             "Hex codes can be typed in Figma's short forms: 0 is 000000, 1a is 1A1A1A, abc is AABBCC.",
             "Settings is one vertical list in a tall window: Global Shortcut (click it to record a new one), Hex Codes (uppercase, include #, and the hex code a colour would be copied as with those choices) and General (Appearance, Show Pine in, launch at login), each row with its icon. Switches are Twine's own.",
             "Version History, at the foot of Settings beside the build number, lists every build of Pine and what it changed.",
@@ -63,8 +63,8 @@ enum VersionHistory {
         ], misc: [
             "Pine says colour, as Twine does, in place of color.",
             "The tick the menu bar icon shows after a copy is the designer's.",
-            "Pine takes Twine's look: the Flip Design System's colours, sizes and type, with magenta (#E2387F) as its accent, the grain, PP Kyoto for large numbers, and the designer's icons in place of the system's.",
-            "The titles and the large contrast ratio are set in AA Bridge Slab, the designer's own font, in place of PP Kyoto, each at the weight it had and in the cut drawn for its size.",
+            "Pine takes Twine's look: the Flip Design System's colours, sizes and type, with magenta (#E2387F) as its accent, the grain, a display face for titles and large numbers, and the designer's icons in place of the system's.",
+            "The titles and the large contrast ratio are set in AA Bridge Slab, the designer's own font, each at the weight it had and in the cut drawn for its size.",
             "Pine needs macOS 14 or later.",
             "Pine's code is under the MIT License.",
         ]),
