@@ -13,7 +13,7 @@ enum VersionHistory {
 
     /// How many pushes to GitHub the app has had, this one included. Raise it by
     /// one with every push: the first was v0.0.01, the 100th is v0.1.00.
-    static let pushes = 30
+    static let pushes = 31
 
     static var release: String { String(format: "v0.%d.%02d", pushes / 100, pushes % 100) }
 
@@ -64,7 +64,7 @@ enum VersionHistory {
             "Pine says colour, as Twine does, in place of color.",
             "The tick the menu bar icon shows after a copy is the designer's.",
             "Pine takes Twine's look: the Flip Design System's colours, sizes and type, with magenta (#E2387F) as its accent, the grain, PP Kyoto for large numbers, and the designer's icons in place of the system's.",
-            "The titles and the large contrast ratio are set in Trupeer Slab in place of PP Kyoto, each at the weight it had and in the cut drawn for its size.",
+            "The titles and the large contrast ratio are set in AA Bridge Slab, the designer's own font, in place of PP Kyoto, each at the weight it had and in the cut drawn for its size.",
             "Pine needs macOS 14 or later.",
             "Pine's code is under the MIT License.",
         ]),

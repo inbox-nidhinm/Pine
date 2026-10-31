@@ -15,6 +15,12 @@ case "${1:-release}" in
     *) CONFIG=release ;;
 esac
 
+# The font comes from the AA-Bridge submodule when it is checked out; without
+# it, the copy kept in Resources/Fonts is used as it is.
+if [[ -f "Vendor/AA-Bridge/slab/fonts/variable/AABridgeSlab[opsz,wght].ttf" ]]; then
+    Tools/update-fonts.sh
+fi
+
 VERSION=$(grep -c '^        \.init(date:' Sources/Pine/App/VersionHistory.swift)
 
 LOG=build/swift-build.log
